@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ward Admission | <%= patient.name %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --accent: #f59e0b; /* Amber/Solar accent for Ward Management */
+      --panel-bg: rgba(255, 255, 255, 0.98);
+      --border-glow: rgba(245, 158, 11, 0.2);
+      --text-main: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #fffbeb; /* Soft Amber tint */
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Horizontal Layout */
+    .onboarding-grid {
+      display: flex;
+      width: 98%;
+      max-width: 1400px;
+      margin: auto;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    /* Panel Styling with Soft Expansion */
+    .panel {
+      flex: 1;
+      background: var(--panel-bg);
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 0 20px 40px -15px rgba(245, 158, 11, 0.1);
+      border: 1px solid #fef3c7;
+      opacity: 0;
+      transform: scale(0.95);
+      animation: softExpand 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Staggered Delays */
+    .p-1 { animation-delay: 0.1s; border-left: 8px solid #fbbf24; }
+    .p-2 { animation-delay: 0.25s; border-left: 8px solid #f59e0b; }
+    .p-3 { animation-delay: 0.4s; border-left: 8px solid #d97706; }
+
+    .step-header {
+      margin-bottom: 30px;
+    }
+
+    .step-header span {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .step-header h3 {
+      font-size: 1.4rem;
+      color: var(--text-main);
+      margin-top: 5px;
+    }
+
+    .input-wrapper { margin-bottom: 25px; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    /* Interactive Inputs */
+    select {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #f1f5f9;
+      border-radius: 16px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 5px var(--border-glow);
+    }
+
+    .patient-badge {
+      background: #fff7ed;
+      padding: 15px;
+      border-radius: 15px;
+      border: 1px dashed #fdba74;
+      text-align: center;
+    }
+
+    /* Action Button */
+    .action-bar {
+      width: 100%;
+      padding: 40px;
+      text-align: center;
+      animation: fadeInUp 0.8s both 0.6s;
+    }
+
+    .btn-admit {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      padding: 20px 100px;
+      border-radius: 20px;
+      border: none;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.4s;
+      box-shadow: 0 15px 30px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-admit:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 25px 50px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Keyframes */
+    @keyframes softExpand {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1100px) {
+      .onboarding-grid { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <form action="/ward/admit/<%= patient._id %>" method="POST">
+    <div class="onboarding-grid">
+      
+      <div class="panel p-1">
+        <div class="step-header">
+          <span>Target Subject</span>
+          <h3>Patient Profile</h3>
+        </div>
+        
+        <div class="patient-badge">
+          <p style="color: #9a3412; font-weight: 800; font-size: 1.1rem;"><%= patient.name %></p>
+          <p style="font-size: 0.8rem; color: #c2410c;">ID: <%= patient._id %></p>
+        </div>
+        <p style="margin-top: 20px; font-size: 0.85rem; color: #64748b;">
+          Verify the patient identity before assigning a clinical ward space.
+        </p>
+      </div>
+
+      <div class="panel p-2">
+        <div class="step-header">
+          <span>Facility Logic</span>
+          <h3>Allocation</h3>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Ward Category</label>
+          <select name="wardCategory" required>
+            <option value="General">General Ward</option>
+            <option value="Semi-Private">Semi-Private Room</option>
+            <option value="ICU">Intensive Care Unit (ICU)</option>
+          </select>
+        </div>
+        <p style="font-size: 0.85rem; color: #64748b;">
+          Room availability is checked in real-time upon selection.
+        </p>
+      </div>
+
+      <div class="panel p-3">
+        <div class="step-header">
+          <span>Checklist</span>
+          <h3>Admission Terms</h3>
+        </div>
+
+        <div style="background: #f8fafc; padding: 20px; border-radius: 20px;">
+          <ul style="list-style: none; font-size: 0.8rem; color: #475569;">
+            <li style="margin-bottom: 10px;">✅ Bed availability confirmed</li>
+            <li style="margin-bottom: 10px;">✅ Nursing staff notified</li>
+            <li>✅ Billing cycle initiated</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="action-bar">
+      <button type="submit" class="btn-admit">Initialize Admission</button>
+    </div>
+  </form>
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMS | Schemes Console</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #4f46e5; /* Indigo for Schemes/Finance */
+      --accent: #0d9488;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .horizontal-layout {
+      display: flex;
+      height: 100vh;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    /* Side Panels - Consistent with your other lists */
+    .glass-panel {
+      background: var(--panel);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .p-left { flex: 0 0 320px; border-top: 6px solid var(--primary); }
+    .p-right { flex: 0 0 280px; border-top: 6px solid var(--accent); }
+    .main-viewport { flex: 1; overflow-y: auto; padding-right: 8px; }
+
+    /* Typography */
+    .menu-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-sub);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .menu-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+    /* Action Buttons */
+    .btn-add {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    }
+    .btn-add:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4); }
+
+    /* Scheme Cards */
+    .scheme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .scheme-card {
+      background: var(--panel);
+      border-radius: 24px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      opacity: 0;
+      animation: cardEntrance 0.6s ease forwards;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .scheme-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .scheme-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .coverage-pill {
+      font-size: 0.65rem;
+      font-weight: 800;
+      background: #eff6ff;
+      color: #2563eb;
+      padding: 4px 10px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    /* Financial Table Styling */
+    .finance-data {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 15px;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 0.85rem;
+    }
+    .data-row:not(:last-child) { border-bottom: 1px solid #eef2f6; }
+    
+    .d-label { color: var(--text-sub); font-weight: 600; }
+    .d-val { color: var(--text-main); font-weight: 700; }
+
+    /* Right Stats */
+    .stat-box {
+      background: #f1f5f9;
+      padding: 24px;
+      border-radius: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
+    .stat-text { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+
+    .search-bar {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      margin-bottom: 20px;
+      font-family: inherit;
+      outline: none;
+    }
+    .search-bar:focus { border-color: var(--primary); background: white; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="horizontal-layout">
+    
+    <aside class="glass-panel p-left">
+      <div class="menu-label">Scheme Registry</div>
+      <a href="/addScheme" class="btn-add">
+        <span>＋</span> New Policy Entry
+      </a>
+      
+      <div style="margin-top: 40px;">
+        <div class="menu-label">Filters</div>
+        <input type="text" id="schemeSearch" class="search-bar" placeholder="Search policies...">
+      </div>
+      
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-sub); line-height: 1.6; padding: 15px; background: #f0fdfa; border-radius: 12px;">
+        <b style="color: var(--accent);">Financial Advisory:</b> Ensure coverage values are updated as per current fiscal year guidelines.
+      </div>
+    </aside>
+
+    <main class="main-viewport">
+      <div class="scheme-grid" id="schemeContainer">
+        <% schemes.forEach((scheme, index) => { %>
+          <div class="scheme-card" 
+               style="animation-delay: <%= index * 0.05 %>s"
+               onclick="window.location='/updateScheme/<%= scheme._id %>'">
+            
+            <span class="coverage-pill"><%= scheme.coverageType %></span>
+            <h3 class="scheme-title">🏛️ <%= scheme.name %></h3>
+            
+            <div class="finance-data">
+              <div class="data-row">
+                <span class="d-label">Coverage Value</span>
+                <span class="d-val" style="color: var(--accent);"><%= scheme.coverageValue %></span>
+              </div>
+              <div class="data-row">
+                <span class="d-label">Max Limit</span>
+                <span class="d-val"><%= scheme.maxLimit || 'Uncapped' %></span>
+              </div>
+            </div>
+
+            <div style="margin-top: 15px; text-align: right; font-size: 0.7rem; font-weight: 700; color: var(--primary);">
+              CLICK TO EDIT DETAILS →
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </main>
+
+    <aside class="glass-panel p-right">
+      <div class="menu-label">Coverage Stats</div>
+      
+      <div class="stat-box">
+        <div class="stat-num"><%= schemes.length %></div>
+        <div class="stat-text">Active Schemes</div>
+      </div>
+
+      <div class="stat-box" style="background: white; border: 1px solid var(--border);">
+        <div class="stat-num" style="color: var(--accent);">100%</div>
+        <div class="stat-text">Database Sync</div>
+      </div>
+
+      <div style="margin-top: auto; text-align: center; border-top: 1px solid var(--border); pt-4">
+        <p style="font-size: 0.6rem; color: var(--text-sub); margin-top: 10px;">HMS FINANCE TERMINAL V1.4</p>
+      </div>
+    </aside>
+
+  </div>
+
+  <script>
+    // Aesthetic Live Search
+    document.getElementById('schemeSearch').addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('.scheme-card').forEach(card => {
+        const title = card.querySelector('.scheme-title').innerText.toLowerCase();
+        card.style.display = title.includes(q) ? 'block' : 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>

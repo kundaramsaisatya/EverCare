@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ward Details | Hospital Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --secondary: #64748b;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --background: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--background);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Header Section */
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Cards & Sections */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--background);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Patient Info Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .info-item label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-item span {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    /* Status Badges */
+    .badge {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-active { background: #dcfce7; color: #166534; }
+    .badge-discharged { background: #fee2e2; color: #991b1b; }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+
+    th {
+      text-align: left;
+      background: #f1f5f9;
+      padding: 12px;
+      font-size: 0.85rem;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    /* Forms & Inputs */
+    .action-form {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    select, input[type="date"], input[type="number"] {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { opacity: 0.9; }
+
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+    .btn-outline:hover { background: #f1f5f9; }
+
+    .bill-footer {
+      margin-top: 40px;
+      text-align: center;
+      padding: 20px;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .action-form { flex-direction: column; align-items: stretch; }
+      .header-flex { flex-direction: column; gap: 15px; text-align: center; }
+    }
+  </style>
+</head>
+
+<body>
+<%- include('./navbar') %>
+
+<div class="container">
+
+  <div class="header-flex">
+    <h2>Ward Management</h2>
+    <div class="status-area">
+      <% if (ward.status === 'Active') { %>
+        <span class="badge badge-active">● Active Admission</span>
+      <% } else { %>
+        <span class="badge badge-discharged">● Discharged</span>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Patient Overview</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <label>Patient Name</label>
+        <span><%= ward.patient.name %></span>
+      </div>
+      <div class="info-item">
+        <label>Ward Category</label>
+        <span><%= ward.wardCategory %></span>
+      </div>
+      <div class="info-item">
+        <label>Admission Date</label>
+        <span><%= ward.admissionDate.toDateString() %></span>
+      </div>
+      <% if (ward.dischargeDate) { %>
+        <div class="info-item">
+          <label>Stay Duration</label>
+          <span><%= ward.daysStayed %> Days</span>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Timeline Management</div>
+    <form class="action-form" action="/ward/updateDates/<%= ward._id %>" method="POST">
+      <div class="form-group">
+        <label>Admission</label>
+        <input type="date" name="admissionDate" value="<%= ward.admissionDate.toISOString().split('T')[0] %>">
+      </div>
+      <div class="form-group">
+        <label>Discharge</label>
+        <input type="date" name="dischargeDate" value="<%= ward.dischargeDate ? ward.dischargeDate.toISOString().split('T')[0] : '' %>">
+      </div>
+      <button type="submit" class="btn btn-outline">Update Timeline</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Medical Consultations</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Doctor Name</th>
+            <th>Service Fee</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% ward.consultations.forEach(c => { %>
+          <tr>
+            <td><strong><%= c.doctor ? c.doctor.name : 'N/A' %></strong></td>
+            <td>₹<%= c.fee.toLocaleString() %></td>
+            <td><%= c.date.toDateString() %></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (ward.status === 'Active') { %>
+    <form class="action-form" action="/ward/addConsultation/<%= ward._id %>" method="POST">
+      <div class="form-group" style="flex: 1;">
+        <label>Select Doctor</label>
+        <select name="doctorId" required>
+          <% doctors.forEach(doc => { %>
+          <option value="<%= doc._id %>">Dr. <%= doc.name %> (₹<%= doc.consultationFee %>)</option>
+          <% }) %>
+        </select>
+      </div>
+      <button class="btn btn-primary">Add Consultation</button>
+    </form>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Pharmacy / Medicines</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Medicine Name</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% ward.medicines.forEach(m => { %>
+          <tr>
+            <td><%= m.medicine ? m.medicine.name : 'N/A' %></td>
+            <td><span class="badge btn-outline"><%= m.quantity %> units</span></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (ward.status === 'Active') { %>
+    <form class="action-form" action="/ward/addMedicine/<%= ward._id %>" method="POST">
+      <div class="form-group" style="flex: 2;">
+        <label>Medicine</label>
+        <select name="medicineId" required>
+          <% medicines.forEach(med => { %>
+          <option value="<%= med._id %>"><%= med.name %> (₹<%= med.price %>)</option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label>Qty</label>
+        <input type="number" name="quantity" min="1" value="1" required>
+      </div>
+      <button class="btn btn-primary">Dispense Medicine</button>
+    </form>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Insurance & Government Schemes</div>
+    
+    <% if (ward.schemeId) { %>
+      <div style="margin-bottom: 20px; display: flex; gap: 40px;">
+        <div class="info-item">
+          <label>Applied Scheme</label>
+          <span><%= ward.schemeId.name %></span>
+        </div>
+        <div class="info-item">
+          <label>Verification</label>
+          <% if (ward.schemeVerified) { %>
+            <span class="badge badge-active">Verified</span>
+          <% } else { %>
+            <span class="badge badge-discharged">Pending Verification</span>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (ward.status === 'Active') { %>
+    <form class="action-form" action="/ward/attachScheme/<%= ward._id %>" method="POST">
+      <div class="form-group" style="flex: 1;">
+        <label>Select Scheme</label>
+        <select name="schemeId">
+          <option value="">-- No Scheme --</option>
+          <% schemes.forEach(s => { %>
+          <option value="<%= s._id %>"><%= s.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; padding-bottom: 10px;">
+        <input type="checkbox" name="schemeVerified" id="verify">
+        <label for="verify" style="margin-bottom: 0;">Mark as Verified</label>
+      </div>
+      <button class="btn btn-primary">Update Scheme</button>
+    </form>
+    <% } %>
+  </div>
+
+  <div class="bill-footer">
+    <a class="btn btn-success" style="padding: 15px 40px; font-size: 1.1rem;" href="/ward/generateBill/<%= ward._id %>">
+      📄 Generate Final IPD Bill
+    </a>
+  </div>
+
+</div>
+</body>
+</html>

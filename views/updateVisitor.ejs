@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMS | Visitor Log Update</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --accent: #6366f1; /* Indigo/Violet for Visitor logs */
+      --accent-soft: #f5f3ff;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .log-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border-radius: 32px;
+      padding: 48px;
+      box-shadow: 0 20px 50px -12px rgba(99, 102, 241, 0.1);
+      border: 1px solid var(--border);
+      animation: entry 0.5s ease-out;
+    }
+
+    @keyframes entry {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .header { text-align: center; margin-bottom: 32px; }
+    .header .icon-box {
+      width: 50px; height: 50px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 22px;
+    }
+    .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+    /* Input Styling */
+    .field { margin-bottom: 24px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-left: 2px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      background: #fafbfc;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      transition: all 0.25s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+    }
+
+    /* Primary Action */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--text);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-back {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .btn-back:hover { color: var(--text); }
+
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="viewport">
+    <div class="log-card">
+      
+      <header class="header">
+        <div class="icon-box">📋</div>
+        <h1>Update Visitor</h1>
+        <p>Edit guest details and access timing</p>
+      </header>
+
+      <form action="/update/visitors/<%= visitors._id %>" method="POST">
+        
+        <div class="field">
+          <label>Assigned Patient</label>
+          <select name="patientName" required>
+            <% patients.forEach(patient => { %>
+              <option value="<%= patient._id %>" <%= visitors.patientName.equals(patient._id) ? 'selected' : '' %>>
+                <%= patient.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Visitor Name</label>
+          <input type="text" name="name" value="<%= visitors.name %>" placeholder="Enter full name" required>
+        </div>
+
+        <div class="field">
+          <label>Entry Timestamp</label>
+          <input type="datetime-local" name="visitTime" value="<%= new Date(visitors.visitTime).toISOString().slice(0, 16) %>" required>
+        </div>
+
+        <div class="field">
+          <label>Contact Number</label>
+          <input type="text" name="contact" value="<%= visitors.contact %>" pattern="[0-9]{10}" placeholder="10-digit mobile number" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Update Log Entry</button>
+        <a href="javascript:history.back()" class="btn-back">Cancel and Discard</a>
+
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

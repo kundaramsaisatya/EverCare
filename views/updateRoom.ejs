@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMS | Room Configuration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #2563eb;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .update-card {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card);
+      border-radius: 32px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.98) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .header { text-align: center; margin-bottom: 32px; }
+    .header h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .header p { color: var(--text-sub); font-size: 14px; margin-top: 4px; }
+
+    /* Input Styling */
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      background: #f9fbfc;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+    }
+
+    /* Twin Row Layout */
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Warning Banner */
+    .warning-banner {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      color: #92400e;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 10px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+      line-height: 1.4;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Buttons */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--text);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-cancel {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* Hide arrows in number input */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  </style>
+</head>
+<body>
+
+<%- include('./navbar') %>
+
+<div class="main-container">
+  <div class="update-card">
+    
+    <header class="header">
+      <h2>Update Room</h2>
+      <p>Manage facility status and daily rates</p>
+    </header>
+
+    <form action="/updateRoom/<%= room._id %>" method="POST" onsubmit="return confirmStatusChange()">
+      
+      <div class="row">
+        <div class="field">
+          <label>Room Number</label>
+          <input type="text" name="roomNumber" value="<%= room.roomNumber %>" required>
+        </div>
+        <div class="field">
+          <label>Daily Rate (₹)</label>
+          <input type="number" name="dailyRate" value="<%= room.dailyRate %>" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Room Category</label>
+        <select name="roomType">
+          <option value="General" <%= room.roomType==='General'?'selected':'' %>>General Ward</option>
+          <option value="Semi-Private" <%= room.roomType==='Semi-Private'?'selected':'' %>>Semi-Private</option>
+          <option value="ICU" <%= room.roomType==='ICU'?'selected':'' %>>ICU</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Occupancy Status</label>
+        <select name="status" id="statusSelect" onchange="handleStatusChange()">
+          <option value="Available" <%= room.status==='Available'?'selected':'' %>>Available</option>
+          <option value="Occupied" <%= room.status==='Occupied'?'selected':'' %>>Occupied</option>
+        </select>
+        <div id="warningText" class="warning-banner">
+          ⚠️ <strong>Note:</strong> Switching to "Available" will automatically process the discharge for the current patient.
+        </div>
+      </div>
+
+      <% if (room.status === 'Occupied') { %>
+        <div class="field">
+          <label>Allocation Timestamp</label>
+          <input type="datetime-local" 
+                 name="allocatedAt" 
+                 value="<%= room.allocatedAt ? new Date(room.allocatedAt).toISOString().slice(0,16) : '' %>">
+        </div>
+      <% } %>
+
+      <button type="submit" class="btn-submit">Sync Room Details</button>
+      <a href="javascript:history.back()" class="btn-cancel">Discard Changes</a>
+
+    </form>
+  </div>
+</div>
+
+<script>
+function handleStatusChange() {
+  const status = document.getElementById('statusSelect').value;
+  const warning = document.getElementById('warningText');
+  warning.style.display = (status === "Available") ? "block" : "none";
+}
+
+function confirmStatusChange() {
+  const status = document.getElementById('statusSelect').value;
+  if (status === "Available") {
+    return confirm("Confirm Discharge?\n\nSetting status to Available will discharge the current patient and clear the allocation data.");
+  }
+  return true;
+}
+</script>
+
+</body>
+</html>

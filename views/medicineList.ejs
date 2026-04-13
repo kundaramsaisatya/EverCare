@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Pharmacy</title>
+  <style>
+    /* Clinical Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      background: #f4f7f9; 
+      color: #333;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* 3-Panel Horizontal Layout */
+    .sidebar-left { width: 300px; background: #fff; border-right: 1px solid #d1d9e0; padding: 30px; }
+    .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+    .sidebar-right { width: 250px; background: #fff; border-left: 1px solid #d1d9e0; padding: 30px; }
+
+    /* Hospital Branding */
+    .title { color: #0056b3; font-size: 20px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid #eef2f5; padding-bottom: 10px; }
+    
+    /* Simple Controls */
+    .search-input { 
+      width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 5px; margin-bottom: 20px; outline: none;
+    }
+    .search-input:focus { border-color: #0056b3; }
+
+    .add-btn { 
+      display: block; width: 100%; padding: 12px; background: #0056b3; color: white; text-align: center; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 20px;
+    }
+
+    /* Medicine Cards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    
+    .card { 
+      background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; padding: 20px; position: relative; border-top: 4px solid #0056b3;
+    }
+    
+    .med-name { font-size: 18px; color: #000; font-weight: 700; margin-bottom: 5px; }
+    .med-type { font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 15px; display: block; }
+    
+    .info-box { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 13px; margin-bottom: 15px; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .label { color: #888; }
+    .val { font-weight: 600; color: #333; }
+
+    .edit-btn { 
+      display: block; text-align: center; text-decoration: none; color: #0056b3; font-size: 13px; font-weight: bold; padding: 8px; border: 1px solid #0056b3; border-radius: 4px;
+    }
+    .edit-btn:hover { background: #0056b3; color: #fff; }
+
+    /* Stats Widget */
+    .stats { text-align: center; background: #e7f0fd; padding: 20px; border-radius: 10px; }
+    .stats h2 { font-size: 32px; color: #0056b3; }
+    .stats p { font-size: 12px; color: #666; font-weight: bold; }
+
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="sidebar-left">
+    <div class="title">Pharmacy Menu</div>
+    <a href="/addMedicine" class="add-btn">+ Add New Stock</a>
+    <input type="text" id="search" class="search-input" placeholder="Search medicine name...">
+    <p style="font-size: 12px; color: #999;">Manage central hospital inventory records.</p>
+  </div>
+
+  <div class="main-content">
+    <div class="grid" id="container">
+      <% medicines.forEach(med => { %>
+        <div class="card">
+          <span class="med-type"><%= med.type %></span>
+          <h3 class="med-name"><%= med.name %></h3>
+          
+          <div class="info-box">
+            <div class="info-row">
+              <span class="label">Dosage:</span>
+              <span class="val"><%= med.dosage %></span>
+            </div>
+            <div class="info-row">
+              <span class="label">Frequency:</span>
+              <span class="val"><%= med.frequency %></span>
+            </div>
+          </div>
+
+          <a href="/update/medicine/<%= med._id %>" class="edit-btn">Edit Stock</a>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="sidebar-right">
+    <div class="title">Inventory Status</div>
+    <div class="stats">
+      <p>TOTAL ITEMS</p>
+      <h2><%= medicines.length %></h2>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('search').addEventListener('keyup', function() {
+      let val = this.value.toLowerCase();
+      document.querySelectorAll('.card').forEach(card => {
+        let name = card.querySelector('.med-name').innerText.toLowerCase();
+        card.style.display = name.includes(val) ? "block" : "none";
+      });
+    });
+  </script>
+
+</body>
+</html>

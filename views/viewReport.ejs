@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Report | <%= patient.name %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-navy: #0f172a;
+      --accent-blue: #2563eb;
+      --border-light: #e2e8f0;
+      --bg-soft: #f8fafc;
+      --text-dark: #1e293b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background: #d1d5db; /* Darker background to make the report "pop" */
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      color: var(--text-dark);
+    }
+
+    .report-page {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 60px;
+      position: relative;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Watermark */
+    .report-page::before {
+      content: "OFFICIAL MEDICAL RECORD";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 5rem;
+      font-weight: 900;
+      color: rgba(0, 0, 0, 0.02);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header */
+    .hospital-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--primary-navy);
+      padding-bottom: 20px;
+      margin-bottom: 40px;
+    }
+
+    .hospital-info h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.5px;
+      color: var(--primary-navy);
+      text-transform: uppercase;
+    }
+
+    .hospital-info p {
+      margin: 4px 0;
+      font-size: 13px;
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .report-meta {
+      text-align: right;
+    }
+
+    .report-meta h2 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--primary-navy);
+      text-decoration: underline;
+      text-underline-offset: 8px;
+    }
+
+    /* Patient Info Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      background: var(--bg-soft);
+      padding: 25px;
+      border-radius: 8px;
+      margin-bottom: 40px;
+      border: 1px solid var(--border-light);
+    }
+
+    .field {
+      display: flex;
+      font-size: 14px;
+    }
+
+    .label {
+      width: 120px;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    .value {
+      flex: 1;
+      border-bottom: 1px dashed #cbd5e1;
+      padding-left: 5px;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 35px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary-navy);
+      background: var(--bg-soft);
+      padding: 8px 12px;
+      border-left: 4px solid var(--accent-blue);
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 10px;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 14px;
+    }
+
+    .description-box {
+      font-family: 'Lora', serif; /* Medical documents feel more official with serif fonts */
+      font-size: 15px;
+      line-height: 1.8;
+      color: #334155;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      min-height: 100px;
+    }
+
+    /* Signature Footer */
+    .report-footer {
+      margin-top: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .qr-code {
+      width: 80px;
+      height: 80px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      text-align: center;
+      color: #94a3b8;
+      border: 1px solid #e2e8f0;
+    }
+
+    .signature-space {
+      text-align: center;
+      width: 250px;
+    }
+
+    .signature-line {
+      border-top: 2px solid var(--primary-navy);
+      margin-bottom: 8px;
+    }
+
+    .signature-space p {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* Print Button */
+    .no-print-zone {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .btn-print {
+      background: var(--primary-navy);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+
+    .btn-print:hover { background: var(--accent-blue); }
+
+    @media print {
+      .no-print-zone, nav { display: none !important; }
+      body { background: white; padding: 0; }
+      .report-page { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+      .report-page::before { color: rgba(0,0,0,0.01); }
+    }
+  </style>
+</head>
+
+<body>
+
+<%- include('./navbar') %>
+
+<div class="report-page">
+
+  <header class="hospital-header">
+    <div class="hospital-info">
+      <h1>Evercare Multispeciality</h1>
+      <p>Health Care & Diagnostic Excellence</p>
+      <div style="font-size: 11px; color: #64748b; margin-top: 5px;">
+        Plot 12, Jubilee Hills, Hyderabad | Ph: +91 98765 43210
+      </div>
+    </div>
+    <div class="report-meta">
+      <h2>HEALTH REPORT</h2>
+      <div style="font-size: 12px; color: #64748b; margin-top: 10px;">
+        REF ID: #PAT-<%= patient._id.toString().slice(-6).toUpperCase() %>
+      </div>
+    </div>
+  </header>
+
+  <section class="info-grid">
+    <div class="field">
+      <div class="label">Patient Name</div>
+      <div class="value"><%= patient.name %></div>
+    </div>
+    <div class="field">
+      <div class="label">Date Issued</div>
+      <div class="value"><%= new Date().toLocaleDateString() %></div>
+    </div>
+    <div class="field">
+      <div class="label">Age / Gender</div>
+      <div class="value"><%= patient.age %> Yrs / <%= patient.gender %></div>
+    </div>
+    <div class="field">
+      <div class="label">Contact</div>
+      <div class="value"><%= patient.contact %></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3>Doctor Consultations</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Consultant Doctor</th>
+          <th>Specialization</th>
+          <th>Visit Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (patient.consultations && patient.consultations.length > 0) { %>
+          <% patient.consultations.forEach(c => { %>
+            <tr>
+              <td><strong>Dr. <%= c.doctor ? c.doctor.name : 'N/A' %></strong></td>
+              <td><%= c.doctor ? c.doctor.field : 'General' %></td>
+              <td><%= c.date ? new Date(c.date).toDateString() : '-' %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="3">No recorded consultations</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h3>Prescribed Medications</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Medicine Name</th>
+          <th>Dosage / Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (patient.medicines && patient.medicines.length > 0) { %>
+          <% patient.medicines.forEach(item => { %>
+            <tr>
+              <td><%= item.medicine ? item.medicine.name : 'N/A' %></td>
+              <td><%= item.quantity %> Units</td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="2">No medicines prescribed</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h3>Clinical Description & Observations</h3>
+    <div class="description-box">
+      <%= patient.description || 'No specific clinical observations recorded for this session.' %>
+    </div>
+  </section>
+
+  <footer class="report-footer">
+    <div class="qr-code">
+      [SECURE<br>QR VERIFY]
+    </div>
+    <div class="signature-space">
+      <div class="signature-line"></div>
+      <p>Authorized Medical Officer</p>
+      <small style="color: #64748b; font-size: 10px;">Computer Generated Report - No Seal Required</small>
+    </div>
+  </footer>
+
+</div>
+
+<div class="no-print-zone">
+  <button class="btn-print" onclick="window.print()">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 8px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-2 4H8v-4h8v4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    Download / Print Report
+  </button>
+</div>
+
+</body>
+</html>

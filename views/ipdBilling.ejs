@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPD Billing | Policy & Stay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --accent: #4f46e5;
+      --panel-bg: rgba(255, 255, 255, 0.98);
+      --border-light: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --bg-soft: #f8fafc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-section { text-align: center; padding: 40px 20px; }
+    .header-section h2 { font-weight: 800; color: var(--text-main); font-size: 1.8rem; }
+
+    .onboarding-grid {
+      display: flex;
+      width: 98%;
+      max-width: 1400px;
+      margin: auto;
+      gap: 20px;
+      padding: 20px;
+      perspective: 2000px;
+    }
+
+    .panel {
+      flex: 1;
+      background: var(--panel-bg);
+      border-radius: 24px;
+      padding: 35px;
+      box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.1);
+      border: 1px solid var(--border-light);
+      opacity: 0;
+      animation: horizontalFlip 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      transition: all 0.4s ease;
+    }
+
+    .p-1 { animation-delay: 0.1s; border-top: 5px solid #818cf8; }
+    .p-2 { animation-delay: 0.3s; border-top: 5px solid #6366f1; }
+    .p-3 { animation-delay: 0.5s; border-top: 5px solid #4f46e5; }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .step-num {
+      background: var(--accent);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75rem;
+    }
+
+    .step-header h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+    }
+
+    select {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 1rem;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .policy-display {
+      margin-top: 10px;
+      padding: 30px 20px;
+      border-radius: 20px;
+      background: #f8fafc;
+      border: 2px dashed var(--border-light);
+      text-align: center;
+      transition: all 0.4s ease;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .policy-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: block;
+      margin-top: 8px;
+      line-height: 1.2;
+    }
+
+    .stay-list {
+      list-style: none;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .stay-list li {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #475569;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    .stay-list li:last-child { border: none; }
+    .stay-list b { color: var(--text-main); }
+
+    .action-bar { text-align: center; padding: 30px; }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: white;
+      padding: 18px 80px;
+      border-radius: 50px;
+      border: none;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.4s;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .btn-generate.active { opacity: 1; pointer-events: auto; }
+
+    @keyframes horizontalFlip {
+      0% { opacity: 0; transform: rotateY(-30deg) scale(0.9); }
+      100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="header-section">
+    <h2>IPD Billing Engine</h2>
+    <p>Verify policy coverage and review stay duration before finalizing</p>
+  </div>
+
+  <div class="onboarding-grid">
+    
+    <div class="panel p-1">
+      <div class="step-header">
+        <div class="step-num">01</div>
+        <h3>Select Patient</h3>
+      </div>
+      <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 10px;">In-Patient Records (Discharged)</label>
+      <select id="patientSelector">
+        <option value="">Choose a patient...</option>
+        <% wards.forEach(w => { %>
+          <option value="<%= w._id %>" 
+                  data-name="<%= w.patient ? w.patient.name : 'Unknown' %>" 
+                  data-ward="<%= w.wardCategory %>" 
+                  data-days="<%= w.daysStayed %>"
+                  data-policy="<%= (w.patient && w.patient.schemeId) ? w.patient.schemeId.name : 'Standard / Self-Pay' %>"
+                  data-verified="<%= (w.patient && w.patient.schemeVerified) ? 'true' : 'false' %>">
+            <%= w.patient ? w.patient.name : 'Unknown Patient' %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="panel p-2" id="policyPanel">
+      <div class="step-header">
+        <div class="step-num">02</div>
+        <h3>Policy Check</h3>
+      </div>
+      <div id="policyBox" class="policy-display">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Awaiting Selection...</span>
+      </div>
+    </div>
+
+    <div class="panel p-3">
+      <div class="step-header">
+        <div class="step-num">03</div>
+        <h3>Stay Details</h3>
+      </div>
+      <div id="stayDetailsBox">
+        <div class="stay-list">
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.75rem;">Summary will appear here.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="action-bar">
+    <button id="generateBtn" class="btn-generate">Compile & Generate Bill</button>
+  </div>
+
+  <script>
+    const selector = document.getElementById('patientSelector');
+    const policyBox = document.getElementById('policyBox');
+    const policyPanel = document.getElementById('policyPanel');
+    const stayBox = document.getElementById('stayDetailsBox');
+    const generateBtn = document.getElementById('generateBtn');
+
+    selector.addEventListener('change', function() {
+      const selected = this.options[this.selectedIndex];
+      
+      if (selected.value) {
+        const isVerified = selected.dataset.verified === 'true';
+        const policyName = selected.dataset.policy;
+        
+        // Update Step 02: Scheme Name & Status Colors
+        policyBox.innerHTML = `
+          <span style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: ${isVerified ? '#1e40af' : '#9f1239'};">
+            ${isVerified ? 'Verified Scheme' : 'Standard Billing'}
+          </span>
+          <span class="policy-name" style="color: ${isVerified ? '#1e3a8a' : '#9f1239'};">${policyName}</span>
+        `;
+        
+        // Dynamic Panel Styling
+        policyPanel.style.background = isVerified ? "#eff6ff" : "#fff1f2";
+        policyPanel.style.borderColor = isVerified ? "#3b82f6" : "#f43f5e";
+
+        // Update Step 03: Stay Details (Non-financial)
+        stayBox.innerHTML = `
+          <ul class="stay-list">
+            <li><span>Ward Category:</span> <b>${selected.dataset.ward}</b></li>
+            <li><span>Total Stay:</span> <b>${selected.dataset.days} Days</b></li>
+            <li><span>Admission Status:</span> <b style="color: #3b82f6;">DISCHARGED</b></li>
+          </ul>
+        `;
+        
+        // Activate Action Button
+        generateBtn.classList.add('active');
+        generateBtn.onclick = () => {
+          window.location.href = `/ward/generateBill/${selected.value}`;
+        };
+      } else {
+        // Reset View
+        policyBox.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted);">Awaiting Selection...</span>';
+        policyPanel.style.background = "var(--panel-bg)";
+        policyPanel.style.borderColor = "var(--border-light)";
+        stayBox.innerHTML = '<div class="stay-list"><p style="text-align: center; color: var(--text-muted); font-size: 0.75rem;">Summary will appear here.</p></div>';
+        generateBtn.classList.remove('active');
+      }
+    });
+  </script>
+
+</body>
+</html>

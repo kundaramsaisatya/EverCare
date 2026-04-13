@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EverCare | Lively Home</title>
+  <style>
+    /* Vibrant Global Styles */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    section { padding: 80px 20px; text-align: center; }
+
+    /* --- ENERGETIC HERO --- */
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      min-height: 95vh;
+      padding: 40px 10%;
+      background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
+      clip-path: ellipse(150% 100% at 50% 0%); /* Playful curve */
+    }
+
+    .hero-content { flex: 1; text-align: left; animation: slideInLeft 0.8s ease-out; }
+
+    .hero-content h1 {
+      font-size: 3.5rem;
+      color: darkblue;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 0px rgba(0,0,139,0.1);
+    }
+
+    .hero-content p {
+      color: #007bff;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+
+    .hero-image { flex: 1; text-align: right; position: relative; }
+    .hero-image img {
+      max-width: 90%;
+      border-radius: 30px;
+      box-shadow: 20px 20px 0px darkblue; /* Retro Lively Shadow */
+      transition: 0.5s;
+    }
+    .hero-image:hover img { transform: rotate(-2deg) scale(1.02); }
+
+    /* --- BOUNCY ABOUT --- */
+    #about { background-color: #ffffff; }
+    .about-container {
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .about-image img {
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      border: 10px solid #f0f8ff;
+      box-shadow: 0px 15px 30px rgba(0,0,139,0.2);
+      animation: pulse 3s infinite ease-in-out;
+    }
+    .about-text h2 { font-size: 3rem; color: darkblue; margin-bottom: 20px; }
+    .about-text p { font-size: 1.2rem; color: #444; line-height: 1.8; text-align: left; }
+
+    /* --- SPINNING SERVICES --- */
+    #services { background-color: #e3f2fd; }
+    .services-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 50px;
+    }
+    .service-card {
+      background: white;
+      padding: 40px 20px;
+      border-radius: 25px;
+      box-shadow: 0px 10px 0px #cedef0;
+      transition: 0.3s;
+    }
+    .service-card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0px 20px 0px darkblue;
+      background: #007bff;
+      color: white;
+    }
+    .service-card:hover h3, .service-card:hover p { color: white; }
+    .service-card img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    .service-card:hover img { transform: rotate(360deg) scale(1.1); }
+
+    /* --- TESTIMONIALS --- */
+    .testimonial-container { display: flex; gap: 20px; overflow-x: auto; padding: 40px 0; }
+    .testimonial-card {
+      min-width: 300px;
+      background: #f0f8ff;
+      padding: 30px;
+      border-radius: 30px 30px 30px 5px; /* Chat bubble style */
+      border: 3px solid darkblue;
+    }
+
+    /* --- CONTACT FORM --- */
+    .contact-form {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 15px 15px 0px #e3f2fd;
+      border: 2px solid #003366;
+    }
+    .contact-form input, .contact-form textarea {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 2px solid #eee;
+      font-size: 1rem;
+    }
+    .contact-form button {
+      width: 100%;
+      padding: 15px;
+      background: darkblue;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .contact-form button:hover { background: #007bff; transform: scale(1.02); }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-100px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 900px) {
+      .hero, .about-container { flex-direction: column; text-align: center; }
+      .hero-content { text-align: center; }
+      .hero-content h1 { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Compassionate Care <br>For Your Loved Ones</h1>
+      <p>Expert medical support with a touch of heart.</p>
+      <div style="display:flex; gap:15px;">
+        <a href="#services" style="background:darkblue; color:white; padding:15px 30px; border-radius:50px; text-decoration:none; font-weight:bold;">Our Services</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="https://static.vecteezy.com/system/resources/previews/020/547/221/non_2x/doctor-holding-medicine-pills-for-senior-couple-treatment-medical-and-healthcare-service-for-elderly-wellbeing-healthy-aging-concept-vector.jpg" alt="Healthcare">
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="about-container">
+      <div class="about-image">
+        <img src="https://www.shutterstock.com/image-vector/health-medical-logo-template-260nw-785429101.jpg" alt="EverCare">
+      </div>
+      <div class="about-text">
+        <h2>About EverCare</h2>
+        <p>
+          We aren't just a service; we are a lifeline. EverCare is dedicated to providing high-quality, 
+          lively, and compassionate care for elderly individuals. From 24/7 medical assistance to 
+          daily companionship, we make sure "home" stays the happiest place on earth.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="services">
+    <h2 style="font-size: 2.5rem; color: darkblue;">What We Do Best</h2>
+    <div class="services-container">
+      <div class="service-card">
+        <img src="https://t3.ftcdn.net/jpg/05/68/54/86/360_F_568548627_MprERye97CNuywUTNSW9ZCET4M5bSyXe.jpg" alt="24/7">
+        <h3>24/7 Medical</h3>
+        <p>Always ready, always there. Real-time medical monitoring.</p>
+      </div>
+      <div class="service-card">
+        <img src="https://www.shutterstock.com/image-vector/health-medical-logo-template-260nw-785429101.jpg" alt="Monitoring">
+        <h3>Health Tracking</h3>
+        <p>Proactive care to keep the smiles going every single day.</p>
+      </div>
+      <div class="service-card">
+        <img src="https://cdn.vectorstock.com/i/500p/41/14/nursing-home-logo-design-care-elderly-vector-29214114.jpg" alt="Home">
+        <h3>Premium Home Care</h3>
+        <p>Professional assistance delivered with family-like warmth.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="contact-form">
+      <h2 style="color:darkblue">Get In Touch</h2>
+      <form id="contactForm">
+        <input type="text" placeholder="Your Full Name" required>
+        <input type="email" placeholder="Your Email Address" required>
+        <textarea rows="4" placeholder="How can we help your family?"></textarea>
+        <button type="submit">Send Message Now! 🚀</button>
+        <p id="successMessage" style="display:none; color: green; font-weight:bold; margin-top:15px;">Success! We'll call you soon! ✅</p>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    document.getElementById("contactForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      document.getElementById("successMessage").style.display = "block";
+      setTimeout(() => { document.getElementById("successMessage").style.display = "none"; this.reset(); }, 3000);
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMS | Policy Configuration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #4f46e5; /* Indigo for Financial/Schemes */
+      --primary-soft: #eef2ff;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .config-card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border-radius: 32px;
+      padding: 48px;
+      box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.08);
+      border: 1px solid var(--border);
+      animation: slideFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideFade {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header { text-align: center; margin-bottom: 36px; }
+    .header .icon-wrap {
+      width: 56px; height: 56px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+    }
+    .header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .header p { color: var(--text-sub); font-size: 14px; margin-top: 4px; }
+
+    /* Form Fields */
+    .field { margin-bottom: 24px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px 18px;
+      background: #f9fbfc;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      transition: all 0.25s;
+    }
+
+    textarea { height: 90px; resize: none; }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+    }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Button Group */
+    .button-stack {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-save {
+      padding: 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-save:hover {
+      background: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-cancel {
+      text-align: center;
+      padding: 14px;
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .btn-cancel:hover { color: var(--text); }
+
+    /* Number Spinners */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="viewport">
+    <div class="config-card">
+      <header class="header">
+        <div class="icon-wrap">🛡️</div>
+        <h1>Update Scheme</h1>
+        <p>Edit coverage parameters and policy limits</p>
+      </header>
+
+      <form action="/updateScheme/<%= scheme._id %>" method="POST">
+        
+        <div class="field">
+          <label>Scheme Identifier</label>
+          <input type="text" name="name" value="<%= scheme.name %>" placeholder="e.g. PMJAY Health Cover" required>
+        </div>
+
+        <div class="field">
+          <label>Policy Description</label>
+          <textarea name="description" placeholder="Describe eligibility or coverage details..."><%= scheme.description || '' %></textarea>
+        </div>
+
+        <div class="field">
+          <label>Coverage Type</label>
+          <select name="coverageType" required>
+            <option value="percentage" <%= scheme.coverageType === 'percentage' ? 'selected' : '' %>>Percentage Basis (%)</option>
+            <option value="fixed" <%= scheme.coverageType === 'fixed' ? 'selected' : '' %>>Fixed Amount (Flat ₹)</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Coverage Value</label>
+            <input type="number" name="coverageValue" value="<%= scheme.coverageValue %>" placeholder="Value" required>
+          </div>
+          <div class="field">
+            <label>Maximum Limit (₹)</label>
+            <input type="number" name="maxLimit" value="<%= scheme.maxLimit || '' %>" placeholder="Unlimited">
+          </div>
+        </div>
+
+        <div class="button-stack">
+          <button type="submit" class="btn-save">Update Policy Details</button>
+          <a href="/schemes" class="btn-cancel">Discard and Return</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

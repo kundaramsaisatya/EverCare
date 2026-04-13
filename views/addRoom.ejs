@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facility Management | Add Room</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <style>
+    :root {
+      --facility-navy: #0f172a;
+      --facility-accent: #3b82f6;
+      --bg-slate: #f1f5f9;
+      --card-white: #ffffff;
+      --border-slate: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-slate);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Horizontal Card Container */
+    .horizontal-room-card {
+      max-width: 1000px;
+      width: 95%;
+      margin: auto;
+      background: var(--card-white);
+      display: flex;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      animation: zoomIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    /* Left Branding/Info Panel */
+    .info-panel {
+      flex: 0.7;
+      background: var(--facility-navy);
+      padding: 50px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-image: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    }
+
+    .info-panel h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+      animation: fadeInLeft 0.8s both;
+    }
+
+    .info-panel p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      animation: fadeInLeft 0.8s both 0.2s;
+    }
+
+    /* Right Form Panel */
+    .form-panel {
+      flex: 1.3;
+      padding: 50px;
+    }
+
+    .room-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Horizontal 2-column layout */
+      gap: 20px;
+    }
+
+    .full-width { grid-column: span 2; }
+
+    .input-box {
+      display: flex;
+      flex-direction: column;
+      animation: fadeInRight 0.5s both;
+    }
+
+    /* Staggered entry for inputs */
+    .input-box:nth-child(1) { animation-delay: 0.1s; }
+    .input-box:nth-child(2) { animation-delay: 0.2s; }
+    .input-box:nth-child(3) { animation-delay: 0.3s; }
+
+    label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      padding: 12px 15px;
+      border: 2px solid #f1f5f9;
+      border-radius: 10px;
+      background: #f8fafc;
+      font-family: inherit;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--facility-accent);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .action-container {
+      grid-column: span 2;
+      margin-top: 15px;
+    }
+
+    .btn-add {
+      width: 100%;
+      background: var(--facility-accent);
+      color: white;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-add:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Responsive Logic */
+    @media (max-width: 850px) {
+      .horizontal-room-card { flex-direction: column; }
+      .info-panel { padding: 30px; text-align: center; }
+      .form-panel { padding: 30px; }
+      .room-form-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: span 1; }
+      .action-container { grid-column: span 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="horizontal-room-card">
+    <div class="info-panel">
+      <h2>Room Allocation</h2>
+      <p>Configure new ward spaces, ICU beds, or private rooms to manage hospital capacity efficiently.</p>
+    </div>
+
+    <div class="form-panel">
+      <form action="/addRoom" method="POST" class="room-form-grid">
+        
+        <div class="input-box full-width">
+          <label>Room Number / ID</label>
+          <input type="text" name="roomNumber" placeholder="e.g., Ward-101" required>
+        </div>
+
+        <div class="input-box">
+          <label>Room Category</label>
+          <select name="roomType" required>
+            <option value="" disabled selected>Select Type</option>
+            <option>General</option>
+            <option>Semi-Private</option>
+            <option>ICU</option>
+          </select>
+        </div>
+
+        <div class="input-box">
+          <label>Daily Rate (₹)</label>
+          <input type="number" name="dailyRate" placeholder="Price per 24hrs" required>
+        </div>
+
+        <div class="action-container">
+          <button type="submit" class="btn-add animate__animated animate__pulse animate__infinite">
+            Add to Facility Map
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

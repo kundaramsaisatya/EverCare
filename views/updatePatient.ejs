@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Patient | Healthcare Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg-surface: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --accent-blue: #dbeafe;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-surface);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    .update-patient-container {
+      max-width: 650px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--text-main);
+      letter-spacing: -0.025em;
+      margin-bottom: 30px;
+    }
+
+    h3 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      margin: 35px 0 15px 0;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h3::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      transition: all 0.2s;
+      margin-bottom: 15px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    /* List Item Styling (Doctors & Meds) */
+    .selection-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #fdfdfd;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+
+    .selection-row:hover {
+      background: var(--bg-surface);
+    }
+
+    .selection-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .selection-row .name-label {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .selection-row input.inline-input {
+      width: auto;
+      margin-bottom: 0;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+
+    /* Checkbox for verification */
+    .verify-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--accent-blue);
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    .verify-box span {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 40px;
+      transition: all 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .update-patient-container { padding: 25px; }
+      .selection-row { flex-wrap: wrap; }
+      .selection-row .name-label { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('./navbar') %>
+
+  <div class="update-patient-container">
+    <h1>Update Patient Profile</h1>
+    
+    <form action="/update/<%= patient._id %>" method="POST">
+      
+      <label for="name">Patient Full Name</label>
+      <input type="text" id="name" name="name" value="<%= patient.name %>" required>
+
+      <div class="form-grid">
+        <div>
+          <label for="age">Age</label>
+          <input type="number" id="age" name="age" value="<%= patient.age %>" min="0" required>
+        </div>
+        <div>
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="Male" <%= patient.gender === 'Male' ? 'selected' : '' %>>Male</option>
+            <option value="Female" <%= patient.gender === 'Female' ? 'selected' : '' %>>Female</option>
+            <option value="Other" <%= patient.gender === 'Other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="contact">Contact Number</label>
+      <input type="text" id="contact" name="contact" value="<%= patient.contact %>" pattern="[0-9]{10}" required>
+
+      <h3>Doctor Consultations</h3>
+      <% doctors.forEach(doc => { 
+         const existingConsult = patient.consultations.find(c => 
+           c.doctor && c.doctor._id.toString() === doc._id.toString()
+         );
+      %>
+        <div class="selection-row">
+          <input type="checkbox" name="doctorIds" value="<%= doc._id %>" <%= existingConsult ? 'checked' : '' %>>
+          <span class="name-label">Dr. <%= doc.name %></span>
+          <input type="date" name="consultationDates" class="inline-input"
+                 value="<%= existingConsult && existingConsult.date ? new Date(existingConsult.date).toISOString().split('T')[0] : '' %>"
+                 style="width:150px;">
+        </div>
+      <% }) %>
+
+      <h3>Active Prescriptions</h3>
+      <% medicines.forEach(med => { 
+          const existing = patient.medicines.find(item => 
+            item.medicine && item.medicine._id.toString() === med._id.toString()
+          );
+      %>
+        <div class="selection-row">
+          <input type="checkbox" name="medicineIds" value="<%= med._id %>" <%= existing ? 'checked' : '' %>>
+          <span class="name-label"><%= med.name %></span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label style="margin-bottom:0; font-size: 0.75rem;">Qty:</label>
+            <input type="number" name="quantities" min="1" class="inline-input"
+                   value="<%= existing ? existing.quantity : 1 %>" style="width:70px;">
+          </div>
+        </div>
+      <% }) %>
+
+      <h3>Case Details</h3>
+      <label for="description">Clinical Observations</label>
+      <textarea id="description" name="description" placeholder="Update progress notes..."><%= patient.description %></textarea>
+
+      <h3>Scheme & Residential</h3>
+      
+      <div class="form-grid">
+        <div>
+          <label for="schemeId">Policy/Scheme</label>
+          <select id="schemeId" name="schemeId">
+            <option value="">No Active Scheme</option>
+            <% schemes.forEach(scheme => { %>
+              <option value="<%= scheme._id %>" 
+                <%= patient.schemeId && patient.schemeId._id.toString() === scheme._id.toString() ? 'selected' : '' %>>
+                <%= scheme.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label for="residentialCategory">Ward Type</label>
+          <select name="residentialCategory" required>
+            <option value="General" <%= patient.residentialCategory === 'General' ? 'selected' : '' %>>General</option>
+            <option value="Special" <%= patient.residentialCategory === 'Special' ? 'selected' : '' %>>Special</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="schemeNumber">Scheme Identification No.</label>
+      <input type="text" id="schemeNumber" name="schemeNumber" value="<%= patient.schemeNumber || '' %>" placeholder="Enter ID number">
+
+      <label class="verify-box">
+        <input type="checkbox" name="schemeVerified" <%= patient.schemeVerified ? 'checked' : '' %>>
+        <span>Scheme Documents Verified by Admin</span>
+      </label>
+
+      <button type="submit">Update Patient Record</button>
+    </form>
+  </div>
+</body>
+</html>

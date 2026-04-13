@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EverCare HMS | OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* 1. DYNAMIC COLOR ENGINE - FIXES NAVY BLUE BUG */
+    :root {
+      --bg: #f8fafc;
+      --nav-bg: rgba(240, 248, 255, 0.9); /* Glass light */
+      --surface: #ffffff;
+      --text-main: #00008b; /* Navy Blue in Light Mode */
+      --text-inv: #ffffff;
+      --accent: #4682B4;
+      --primary: #4f46e5;
+      --border: rgba(0, 0, 139, 0.1);
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --nav-bg: rgba(15, 23, 42, 0.9); /* Glass dark */
+      --surface: #1e293b;
+      --text-main: #f8fafc; /* Navy Blue turns White here! */
+      --text-inv: #0f172a;
+      --accent: #38bdf8;
+      --primary: #818cf8;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: rgba(0, 0, 0, 0.4);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      padding-top: 80px;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    /* 2. THE GLASS NAVBAR */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--nav-bg);
+      backdrop-filter: blur(15px);
+      padding: 12px 40px;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 30px var(--shadow);
+    }
+
+    .logo h1 {
+      color: var(--text-main);
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -1px;
+    }
+
+    /* 3. DESKTOP LINKS - NO HAMBURGER HERE */
+    .nav-links {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 5px; /* Compact for many items */
+    }
+
+    .nav-links a, .dropdown-toggle {
+      text-decoration: none;
+      color: var(--text-main); /* Controlled by theme variable */
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    /* Gamified Hover */
+    .nav-links a:hover {
+      background: var(--accent);
+      color: var(--text-inv) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    /* 4. ANIMATED DROPDOWNS */
+    .dropdown { position: relative; }
+
+    .dropdown-menu {
+      display: block;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(15px);
+      position: absolute;
+      top: 50px; left: 0;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      min-width: 170px;
+      box-shadow: 0 15px 35px var(--shadow);
+      transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 1100;
+    }
+
+    .dropdown.active .dropdown-menu {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+
+    /* 5. THEME TOGGLE BUTTON */
+    #theme-toggle {
+      background: var(--border);
+      color: var(--text-main);
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: 0.4s;
+      margin-right: 10px;
+    }
+
+    #theme-toggle:hover {
+      transform: rotate(360deg) scale(1.1);
+      background: var(--primary);
+      color: white;
+    }
+
+    /* 6. MOBILE TOGGLE - HIDDEN BY DEFAULT */
+    .menu-toggle { display: none; cursor: pointer; }
+
+    .menu-toggle div {
+      width: 25px; height: 3px;
+      background-color: var(--text-main);
+      margin: 5px;
+      transition: 0.3s;
+    }
+
+    /* 7. RESPONSIVE LOGIC */
+    @media (max-width: 1200px) {
+      .navbar { padding: 12px 20px; }
+      .nav-links a { padding: 10px 8px; font-size: 12px; }
+    }
+
+    @media (max-width: 1024px) {
+      .menu-toggle { display: block; }
+      .nav-links {
+        display: none; /* Collapses into hamburger only on small screens */
+        flex-direction: column;
+        position: absolute;
+        top: 75px; right: 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        width: 240px; padding: 15px; border-radius: 15px;
+        box-shadow: 0 10px 40px var(--shadow);
+      }
+      .nav-links.show { display: flex; }
+      .dropdown-menu { position: relative; top: 0; box-shadow: none; border: none; padding-left: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">
+    <h1>EverCare</h1>
+  </div>
+
+  <div class="menu-toggle" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+
+  <ul class="nav-links">
+    <li>
+      <button id="theme-toggle">
+        <span class="dark-icon">🌙</span>
+        <span class="light-icon" style="display:none;">☀️</span>
+      </button>
+    </li>
+
+    <li><a href="/">Home</a></li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Residents ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/patient">View All</a></li>
+        <li><a href="/addPatient">Add New</a></li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Doctors ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/doctor">List</a></li>
+        <li><a href="/addDoctor">Add New</a></li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Medicines ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/medicine">Inventory</a></li>
+        <li><a href="/addMedicine">Add Stock</a></li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Rooms ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/rooms">Management</a></li>
+        <li><a href="/addRoom">Register Room</a></li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Wards ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/ward/active">Active Stats</a></li>
+        <li><a href="/billing/ipd">IPD Billing</a></li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Billing ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/billing">Create Invoice</a></li>
+        <li><a href="/billingList">Records</a></li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Schemes ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/schemes">View Active</a></li>
+        <li><a href="/addScheme">New Scheme</a></li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" onclick="toggleDropdown(event)">Visitors ⌄</a>
+      <ul class="dropdown-menu">
+        <li><a href="/visitor">Log</a></li>
+        <li><a href="/addVisitor">Check-In</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+<script>
+  // 1. Navbar Toggle (Mobile Only)
+  function toggleMenu() {
+    document.querySelector('.nav-links').classList.toggle('show');
+  }
+
+  // 2. Dropdown Logic
+  function toggleDropdown(event) {
+    event.preventDefault();
+    const parent = event.target.closest('.dropdown');
+    
+    // Close other dropdowns
+    document.querySelectorAll('.dropdown').forEach(drop => {
+      if (drop !== parent) drop.classList.remove('active');
+    });
+
+    parent.classList.toggle('active');
+  }
+
+  // 3. Click Outside to Close
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("active"));
+    }
+  });
+
+  // 4. DARK MODE ENGINE
+  const toggleBtn = document.getElementById('theme-toggle');
+  const darkIcon = document.querySelector('.dark-icon');
+  const lightIcon = document.querySelector('.light-icon');
+
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateIcons(savedTheme);
+
+  toggleBtn.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateIcons(newTheme);
+  });
+
+  function updateIcons(theme) {
+    if (theme === 'dark') {
+      darkIcon.style.display = 'none';
+      lightIcon.style.display = 'inline';
+    } else {
+      darkIcon.style.display = 'inline';
+      lightIcon.style.display = 'none';
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMS | Room Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .dashboard-container {
+      display: flex;
+      height: 100vh;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    /* Side Panels */
+    .glass-panel {
+      background: var(--panel);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .side-left { flex: 0 0 320px; }
+    .side-right { flex: 0 0 280px; }
+    .main-viewport { flex: 1; overflow-y: auto; padding-right: 8px; }
+
+    /* Headers */
+    .menu-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-sub);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .menu-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+    /* Buttons */
+    .btn-add {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--text-main);
+      color: white;
+      text-decoration: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-add:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: var(--primary); }
+
+    /* Room Cards */
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .room-card {
+      background: var(--panel);
+      border-radius: 24px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      opacity: 0;
+      animation: slideUp 0.6s ease forwards;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .room-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .room-id { font-size: 1.25rem; font-weight: 800; color: var(--text-main); }
+    
+    .status-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+
+    .tag-available { background: #ecfdf5; color: var(--success); }
+    .tag-occupied { background: #fef2f2; color: var(--danger); }
+
+    /* Data List */
+    .data-list { margin-bottom: 24px; }
+    .data-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.85rem;
+    }
+    .data-item:last-child { border-bottom: none; }
+    .d-label { color: var(--text-sub); font-weight: 500; }
+    .d-val { color: var(--text-main); font-weight: 700; }
+
+    /* Forms */
+    .select-patient {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      font-family: inherit;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-allocate { background: var(--primary); color: white; }
+    .btn-discharge { background: #fff; color: var(--danger); border: 1.5px solid var(--danger); }
+    .btn-discharge:hover { background: var(--danger); color: white; }
+
+    .btn-edit {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-decoration: none;
+    }
+    .btn-edit:hover { color: var(--primary); }
+
+    /* Stats */
+    .stat-card {
+      background: #f8fafc;
+      padding: 24px;
+      border-radius: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .stat-val { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<%- include('./navbar') %>
+
+<div class="dashboard-container">
+  
+  <aside class="glass-panel side-left">
+    <div class="menu-label">Administration</div>
+    <a href="/addRoom" class="btn-add">
+      <span>＋</span> Register New Ward
+    </a>
+    
+    <div style="margin-top: 40px;">
+      <div class="menu-label">Quick Help</div>
+      <p style="font-size: 0.8rem; color: var(--text-sub); line-height: 1.6;">
+        Real-time room occupancy monitor. Select an available patient from the dropdown to initiate allocation. 
+      </p>
+    </div>
+  </aside>
+
+  <main class="main-viewport">
+    <div class="room-grid">
+      <% rooms.forEach((room, index) => { %>
+        <div class="room-card" style="animation-delay: <%= index * 0.05 %>s">
+          
+          <div class="room-header">
+            <div class="room-id">R-<%= room.roomNumber %></div>
+            <span class="status-tag <%= room.status === 'Available' ? 'tag-available' : 'tag-occupied' %>">
+              <%= room.status %>
+            </span>
+          </div>
+
+          <div class="data-list">
+            <div class="data-item">
+              <span class="d-label">Category</span>
+              <span class="d-val"><%= room.roomType %></span>
+            </div>
+            <div class="data-item">
+              <span class="d-label">Base Rate</span>
+              <span class="d-val">₹<%= room.dailyRate %></span>
+            </div>
+
+            <% if (room.patient) { %>
+              <div class="data-item" style="margin-top: 10px; padding-top: 10px; border-top: 2px dashed #f1f5f9;">
+                <span class="d-label">Current Patient</span>
+                <span class="d-val"><%= room.patient.name %></span>
+              </div>
+              <div class="data-item">
+                <span class="d-label">Stay Duration</span>
+                <span class="d-val">
+                  <%= Math.ceil((Date.now() - new Date(room.allocatedAt)) / (1000*60*60*24)) %> Days
+                </span>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (room.status === 'Available') { %>
+            <form action="/allocateRoom/<%= room._id %>" method="POST">
+              <select name="patientId" class="select-patient" required>
+                <option value="">Choose Patient</option>
+                <% patients.forEach(p => { %>
+                  <option value="<%= p._id %>"><%= p.name %></option>
+                <% }) %>
+              </select>
+              <button type="submit" class="btn-action btn-allocate">Assign Room</button>
+            </form>
+          <% } else { %>
+            <form action="/discharge/<%= room._id %>" method="POST" onsubmit="return confirm('Confirm discharge for <%= room.patient.name %>?')">
+              <button type="submit" class="btn-action btn-discharge">Process Discharge</button>
+            </form>
+          <% } %>
+
+          <a href="/updateRoom/<%= room._id %>" class="btn-edit">✏️ Edit Details</a>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+
+  <aside class="glass-panel side-right">
+    <div class="menu-label">Ward Stats</div>
+    
+    <div class="stat-card">
+      <div class="stat-val"><%= rooms.length %></div>
+      <div class="stat-label">Total Inventory</div>
+    </div>
+
+    <div class="stat-card" style="background: #fff; border: 1px solid var(--border);">
+      <div class="stat-val" style="color: var(--text-main);"><%= rooms.filter(r => r.status === 'Occupied').length %></div>
+      <div class="stat-label">Currently Occupied</div>
+    </div>
+
+    <div style="margin-top: auto; text-align: center;">
+      <p style="font-size: 0.65rem; color: var(--text-sub); font-weight: 700;">HMS V.2.0-STABLE</p>
+    </div>
+  </aside>
+
+</div>
+
+</body>
+</html>

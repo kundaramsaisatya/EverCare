@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Medicine | Pharmacy Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <style>
+    :root {
+      --pharmacy-primary: #065f46;
+      --pharmacy-accent: #10b981;
+      --bg-light: #f0fdf4;
+      --text-dark: #064e3b;
+      --border-color: #d1fae5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Horizontal Wrapper */
+    .horizontal-card {
+      max-width: 1100px;
+      width: 95%;
+      margin: auto;
+      background: white;
+      display: flex;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      animation: zoomIn 0.5s ease-out;
+    }
+
+    /* Left Aesthetic Side */
+    .inventory-info {
+      flex: 0.8;
+      background: var(--pharmacy-primary);
+      padding: 60px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .inventory-info h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      animation: fadeInLeft 0.8s both;
+    }
+
+    .inventory-info p {
+      opacity: 0.85;
+      font-size: 1rem;
+      animation: fadeInLeft 0.8s both 0.2s;
+    }
+
+    /* Right Form Side */
+    .form-content {
+      flex: 1.2;
+      padding: 50px 60px;
+    }
+
+    .horizontal-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Two column horizontal grid */
+      gap: 20px;
+    }
+
+    .full-row { grid-column: span 2; }
+
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      animation: fadeInRight 0.5s both;
+    }
+
+    /* Staggered Animations */
+    .input-wrapper:nth-child(1) { animation-delay: 0.1s; }
+    .input-wrapper:nth-child(2) { animation-delay: 0.2s; }
+    .input-wrapper:nth-child(3) { animation-delay: 0.3s; }
+    .input-wrapper:nth-child(4) { animation-delay: 0.4s; }
+    .input-wrapper:nth-child(5) { animation-delay: 0.5s; }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    input {
+      padding: 14px 16px;
+      border: 2px solid #f3f4f6;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: #f9fafb;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--pharmacy-accent);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    .submit-container {
+      grid-column: span 2;
+      margin-top: 20px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--pharmacy-primary);
+      color: white;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 15px -3px rgba(6, 95, 70, 0.3);
+    }
+
+    .btn-submit:hover {
+      background: var(--pharmacy-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .horizontal-card { flex-direction: column; margin: 20px auto; }
+      .inventory-info { padding: 40px; text-align: center; }
+      .form-content { padding: 30px; }
+      .horizontal-form { grid-template-columns: 1fr; }
+      .full-row { grid-column: span 1; }
+      .submit-container { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="horizontal-card">
+    <div class="inventory-info">
+      <h2>Pharmacy <br>Stock Control</h2>
+      <p>Maintain accurate records of available medications, dosages, and pricing for the hospital pharmacy.</p>
+    </div>
+
+    <div class="form-content">
+      <form action="/addMedicine" method="POST" class="horizontal-form">
+        
+        <div class="input-wrapper full-row">
+          <label for="name">Medicine Name</label>
+          <input type="text" id="name" name="name" placeholder="e.g., Paracetamol" required>
+        </div>
+
+        <div class="input-wrapper">
+          <label for="type">Medicine Type</label>
+          <input type="text" id="type" name="type" placeholder="Tablet, Syrup, Injection" required>
+        </div>
+
+        <div class="input-wrapper">
+          <label for="dosage">Dosage</label>
+          <input type="text" id="dosage" name="dosage" placeholder="e.g., 500mg" required>
+        </div>
+
+        <div class="input-wrapper">
+          <label for="frequency">Unit Pack</label>
+          <input type="text" id="frequency" name="frequency" placeholder="e.g., 10 Tablets / Strip" required>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Price (₹)</label>
+          <input type="number" name="price" placeholder="Price per unit" required>
+        </div>
+
+        <div class="submit-container">
+          <button type="submit" class="btn-submit">
+            Add to Inventory
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

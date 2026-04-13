@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing Ledger | Horizontal Way</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --accent: #10b981; /* Emerald/Mint for Billing/Success */
+      --panel-bg: rgba(255, 255, 255, 0.95);
+      --border-light: #e2e8f0;
+      --text-main: #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f0fdf4; /* Very light mint tint */
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Main Horizontal Tri-Panel Container */
+    .onboarding-grid {
+      display: flex;
+      width: 98%;
+      max-width: 1400px;
+      margin: auto;
+      gap: 20px;
+      padding: 20px;
+      perspective: 2000px;
+    }
+
+    /* Panel Styling */
+    .panel {
+      flex: 1;
+      background: var(--panel-bg);
+      border-radius: 24px;
+      padding: 35px;
+      box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--border-light);
+      opacity: 0;
+      animation: horizontalFlip 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    /* Staggered Delay for consistent UI flow */
+    .p-1 { animation-delay: 0.1s; border-top: 5px solid #6ee7b7; }
+    .p-2 { animation-delay: 0.3s; border-top: 5px solid #10b981; }
+    .p-3 { animation-delay: 0.5s; border-top: 5px solid #047857; }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .step-num {
+      background: var(--accent);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75rem;
+    }
+
+    .step-header h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #64748b;
+    }
+
+    .input-wrapper { margin-bottom: 22px; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    /* Scheme Info Box with dynamic "Float" effect */
+    .scheme-box {
+      margin-top: 10px;
+      padding: 20px;
+      border-radius: 16px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px dashed #a7f3d0;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Action Bar */
+    .action-bar {
+      width: 100%;
+      padding: 30px;
+      text-align: center;
+      animation: fadeInUp 0.8s both 0.7s;
+    }
+
+    .btn-generate {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 18px 80px;
+      border-radius: 50px;
+      border: none;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.4s;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-generate:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Animations */
+    @keyframes horizontalFlip {
+      0% { opacity: 0; transform: rotateY(-30deg) scale(0.9); }
+      100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1100px) {
+      .onboarding-grid { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <form action="/billing" method="POST">
+    <div class="onboarding-grid">
+      
+      <div class="panel p-1">
+        <div class="step-header">
+          <div class="step-num">01</div>
+          <h3>Selection</h3>
+        </div>
+        
+        <div class="input-wrapper">
+          <label for="patientSelect">Target Patient</label>
+          <select name="patientId" id="patientSelect" required>
+            <option value="">Choose Patient...</option>
+            <% patients.forEach(patient => { %>
+              <option 
+                value="<%= patient._id %>"
+                data-scheme="<%= patient.schemeId ? patient.schemeId.name : '' %>"
+                data-verified="<%= patient.schemeVerified %>"
+              >
+                <%= patient.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+        <p style="font-size: 0.8rem; color: #64748b; line-height: 1.6;">
+          Selecting a patient will automatically fetch active treatments, ward stays, and medicine charges.
+        </p>
+      </div>
+
+      <div class="panel p-2">
+        <div class="step-header">
+          <div class="step-num">02</div>
+          <h3>Policy Check</h3>
+        </div>
+
+        <div id="schemeInfo" class="scheme-box">
+          Select a patient to verify insurance or government scheme eligibility.
+        </div>
+      </div>
+
+      <div class="panel p-3">
+        <div class="step-header">
+          <div class="step-num">03</div>
+          <h3>Invoice Generation</h3>
+        </div>
+
+        <div style="background: #f8fafc; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0;">
+          <ul style="list-style: none; font-size: 0.75rem; color: #475569;">
+            <li style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+              <span>Automated Calculation</span>
+              <span style="color: var(--accent); font-weight: 700;">ACTIVE</span>
+            </li>
+            <li style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+              <span>Tax Compliance (GST)</span>
+              <span>18% Applied</span>
+            </li>
+            <li style="display: flex; justify-content: space-between;">
+              <span>Format</span>
+              <span>PDF / Digital</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="action-bar">
+      <button type="submit" class="btn-generate">Compile & Generate Bill</button>
+    </div>
+  </form>
+
+  <script>
+    const patientSelect = document.getElementById('patientSelect');
+    const schemeBox = document.getElementById('schemeInfo');
+
+    patientSelect.addEventListener('change', function() {
+      const selected = this.options[this.selectedIndex];
+      
+      // Add a small "pop" effect on change
+      schemeBox.style.transform = "scale(0.95)";
+      
+      setTimeout(() => {
+        if (selected.value && selected.dataset.scheme && selected.dataset.verified === "true") {
+          schemeBox.innerHTML = `<div><p style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.7;">Verified Policy</p><p style="font-size: 1.1rem;">${selected.dataset.scheme}</p></div>`;
+          schemeBox.style.background = "#ecfdf5";
+          schemeBox.style.borderColor = "#10b981";
+          schemeBox.style.color = "#047857";
+        } else if (selected.value) {
+          schemeBox.innerText = "No verified scheme available. Standard rates will apply.";
+          schemeBox.style.background = "#fff1f2";
+          schemeBox.style.borderColor = "#fecdd3";
+          schemeBox.style.color = "#9f1239";
+        } else {
+          schemeBox.innerText = "Select a patient to verify insurance or government scheme eligibility.";
+          schemeBox.style.background = "#f0f8ff";
+          schemeBox.style.borderColor = "#bae6fd";
+          schemeBox.style.color = "#0056b3";
+        }
+        schemeBox.style.transform = "scale(1)";
+      }, 150);
+    });
+  </script>
+
+</body>
+</html>

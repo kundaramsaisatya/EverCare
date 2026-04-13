@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+    
+    body { 
+      font-family: Arial, Helvetica, sans-serif; 
+      background: #f0f0f0; 
+      padding: 20px; 
+      color: #000;
+    }
+
+    /* Indian-Style Bordered Invoice */
+    .invoice-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border: 3px double #333; /* Classic Indian Govt/Office Double Border */
+      position: relative;
+    }
+
+    /* Center Header like Indian Medical Bills */
+    .hospital-header {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+    }
+
+    .hospital-header h1 { margin: 0; font-size: 26px; text-transform: uppercase; }
+    .hospital-header p { margin: 3px 0; font-size: 13px; }
+
+    .bill-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .section-head {
+      background: #eee;
+      padding: 5px 10px;
+      font-weight: bold;
+      font-size: 13px;
+      text-transform: uppercase;
+      border: 1px solid #ccc;
+      margin-top: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 5px;
+    }
+
+    th, td {
+      border: 1px solid #999;
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    th { background: #f2f2f2; text-align: left; }
+    .right { text-align: right; }
+
+    /* The Bottom Area with the Stamp */
+    .billing-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      align-items: flex-start;
+    }
+
+    .total-table { width: 300px; }
+    .total-table td { font-weight: bold; }
+    .payable-row { font-size: 16px; background: #eee !important; }
+
+    /* Circular Indian Office Stamp */
+    .stamp-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rubber-stamp {
+      width: 120px;
+      height: 120px;
+      border: 3px solid rgba(0, 0, 128, 0.6); /* Navy blue ink style */
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(0, 0, 128, 0.6);
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 10px;
+      text-align: center;
+      transform: rotate(-10deg);
+      padding: 5px;
+      line-height: 1;
+    }
+
+    .stamp-inner {
+      border-top: 1px solid rgba(0, 0, 128, 0.6);
+      border-bottom: 1px solid rgba(0, 0, 128, 0.6);
+      padding: 4px 0;
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
+    .sig-area {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .invoice-card { border: 2px solid #000; width: 100%; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="invoice-card">
+  <div class="hospital-header">
+    <h1>CarePlus Old Age Care Center</h1>
+    <p>ISO 9001:2015 Certified Elder Care Center</p>
+    <p>123 Medical Enclave, New Delhi - 110001 | Phone: +91 9876543210</p>
+    <h3 style="margin-top:10px; text-decoration: underline;">TAX INVOICE / BILL OF SUPPLY</h3>
+  </div>
+
+  <div class="bill-head">
+    <div>
+      <p><b>Patient Name:</b> <%= bill.patient.name %></p>
+      <p><b>Contact:</b> <%= bill.patient.contact %></p>
+      <p><b>Bill Type:</b> <%= bill.type %></p>
+    </div>
+    <div class="right">
+      <p><b>Invoice No:</b> CP/25-26/<%= bill._id.toString().slice(-4).toUpperCase() %></p>
+      <p><b>Date:</b> <%= bill.createdAt.toDateString() %></p>
+      <p><b>Status:</b> <%= bill.paymentStatus %></p>
+    </div>
+  </div>
+
+  <div class="section-head">Billing Particulars</div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 10%;">Sr.</th>
+        <th style="width: 65%;">Service / Particulars</th>
+        <th class="right" style="width: 25%;">Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (bill.type === 'Residential') { %>
+        <tr><td>1</td><td>Monthly Stay & Accommodation</td><td class="right">₹<%= bill.residentialDetails.roomRent %></td></tr>
+        <tr><td>2</td><td>Nutritional Food Charges</td><td class="right">₹<%= bill.residentialDetails.foodCharge %></td></tr>
+        <tr><td>3</td><td>Personal Care & Nursing</td><td class="right">₹<%= bill.residentialDetails.careCharge %></td></tr>
+        <tr><td>4</td><td>Miscellaneous Charges</td><td class="right">₹<%= bill.residentialDetails.extraCharge %></td></tr>
+      <% } else { %>
+        <tr><td>1</td><td>Ward Charges (<%= bill.wardDetails.wardCategory %>)</td><td class="right">₹<%= bill.wardDetails.roomCharge %></td></tr>
+        <% if (bill.doctorDetails) { bill.doctorDetails.forEach((doc, i) => { %>
+          <tr><td><%= i + 2 %></td><td>Dr. Consultation Fees: Dr. <%= doc.name %></td><td class="right">₹<%= doc.fee %></td></tr>
+        <% })} %>
+        <% if (bill.medicineDetails) { bill.medicineDetails.forEach((item, i) => { %>
+          <tr><td><%= i + (bill.doctorDetails.length + 2) %></td><td>Medicine: <%= item.name %> (Qty: <%= item.quantity %>)</td><td class="right">₹<%= item.subtotal %></td></tr>
+        <% })} %>
+      <% } %>
+    </tbody>
+  </table>
+
+  <div class="billing-footer">
+    <div class="stamp-container">
+      <div class="rubber-stamp">
+        CAREPLUS CENTER
+        <div class="stamp-inner"><%= bill.paymentStatus === 'Paid' ? 'PAID' : 'DUE' %></div>
+        ACCOUNTS DEPT
+      </div>
+    </div>
+
+    <div class="total-table">
+      <table>
+        <tr>
+          <td>Total Amount</td>
+          <td class="right">₹<%= bill.totalAmount %></td>
+        </tr>
+        <% if (bill.schemeCoveredAmount > 0) { %>
+        <tr>
+          <td>Scheme / Discount</td>
+          <td class="right">- ₹<%= bill.schemeCoveredAmount %></td>
+        </tr>
+        <% } %>
+        <tr class="payable-row">
+          <td>NET PAYABLE</td>
+          <td class="right">₹<%= bill.finalAmount %></td>
+        </tr>
+      </table>
+      
+      <div class="sig-area">
+        <br><br>
+        <p>_______________________</p>
+        <p><b>Accountant Signature</b></p>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top: 30px; font-size: 11px;">
+    <b>Terms:</b> 1. All disputes are subject to local jurisdiction. 2. This is a computer-generated bill. 
+    3. Please keep this receipt for insurance claims.
+  </p>
+</div>
+
+</body>
+</html>

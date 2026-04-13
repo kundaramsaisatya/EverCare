@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Registration | Horizontal Way</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --accent: #4f46e5;
+      --panel-bg: rgba(255, 255, 255, 0.9);
+      --border-light: #e2e8f0;
+      --text-main: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Main Horizontal Tri-Panel Container */
+    .onboarding-grid {
+      display: flex;
+      width: 98%;
+      max-width: 1400px;
+      margin: auto;
+      gap: 20px;
+      padding: 20px;
+      perspective: 2000px; /* Essential for the 3D Flip effect */
+    }
+
+    /* Panel Styling */
+    .panel {
+      flex: 1;
+      background: var(--panel-bg);
+      border-radius: 24px;
+      padding: 35px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-light);
+      opacity: 0;
+      /* The 3D Flip Animation */
+      animation: horizontalFlip 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    /* Staggered Delay for the Tri-Panel Look */
+    .p-1 { animation-delay: 0.1s; border-top: 5px solid #818cf8; }
+    .p-2 { animation-delay: 0.3s; border-top: 5px solid #6366f1; }
+    .p-3 { animation-delay: 0.5s; border-top: 5px solid #4338ca; }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .step-num {
+      background: var(--accent);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75rem;
+    }
+
+    .step-header h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #64748b;
+    }
+
+    .input-wrapper { margin-bottom: 22px; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea { min-height: 100px; resize: none; }
+
+    /* Bottom Action Bar */
+    .action-bar {
+      width: 100%;
+      padding: 30px;
+      text-align: center;
+      animation: fadeInUp 0.8s both 0.7s;
+    }
+
+    .btn-register {
+      background: var(--accent);
+      color: white;
+      padding: 18px 80px;
+      border-radius: 50px;
+      border: none;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.4s;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-register:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(79, 70, 229, 0.5);
+      letter-spacing: 1px;
+    }
+
+    /* Keyframe Animations */
+    @keyframes horizontalFlip {
+      0% { opacity: 0; transform: rotateY(-30deg) scale(0.9); }
+      100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1100px) {
+      .onboarding-grid { flex-direction: column; }
+      .panel { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <form action="/addPatient" method="POST">
+    <div class="onboarding-grid">
+      
+      <div class="panel p-1">
+        <div class="step-header">
+          <div class="step-num">01</div>
+          <h3>Identity</h3>
+        </div>
+        
+        <div class="input-wrapper">
+          <label>Full Name</label>
+          <input type="text" name="name" placeholder="John Doe" required>
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+          <div class="input-wrapper" style="flex: 1;">
+            <label>Age</label>
+            <input type="number" name="age" required>
+          </div>
+          <div class="input-wrapper" style="flex: 1;">
+            <label>Gender</label>
+            <select name="gender">
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Contact</label>
+          <input type="text" name="contact" placeholder="10-digit mobile" required>
+        </div>
+      </div>
+
+      <div class="panel p-2">
+        <div class="step-header">
+          <div class="step-num">02</div>
+          <h3>Clinical</h3>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Primary Consultant</label>
+          <select name="doctor" required>
+            <% doctors.forEach(doctor => { %>
+              <option value="<%= doctor._id %>">Dr. <%= doctor.name %> (<%= doctor.field %>)</option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Initial Medicine</label>
+          <select name="medicine" required>
+            <% medicines.forEach(medicine => { %>
+              <option value="<%= medicine._id %>"><%= medicine.name %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Symptoms / Notes</label>
+          <textarea name="description" placeholder="Brief history..."></textarea>
+        </div>
+      </div>
+
+      <div class="panel p-3">
+        <div class="step-header">
+          <div class="step-num">03</div>
+          <h3>Financial</h3>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Applied Scheme</label>
+          <select name="schemeId">
+            <option value="">None (Private)</option>
+            <% schemes.forEach(scheme => { %>
+              <option value="<%= scheme._id %>"><%= scheme.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="input-wrapper">
+          <label>Reference Card No.</label>
+          <input type="text" name="schemeNumber" placeholder="Scheme ID">
+        </div>
+
+        <div style="margin-top: 30px; background: #f1f5f9; padding: 20px; border-radius: 15px;">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" name="schemeVerified" style="width: 20px; height: 20px;">
+            <span style="font-size: 0.85rem;">Documents Verified</span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="action-bar">
+      <button type="submit" class="btn-register">Confirm Registration</button>
+    </div>
+  </form>
+
+</body>
+</html>

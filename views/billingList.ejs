@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing Ledger | Healthcare System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --accent: #4f46e5;
+      --panel-bg: #ffffff;
+      --border-light: #e2e8f0;
+      --text-main: #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ledger-grid {
+      display: flex;
+      width: 98%;
+      max-width: 1500px;
+      margin: auto;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--panel-bg);
+      border-radius: 24px;
+      padding: 30px;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Column Widths */
+    .p-filter { flex: 0.8; }
+    .p-data { flex: 2.5; }
+    .p-stats { flex: 0.7; }
+
+    .step-header h3 { 
+      font-size: 0.7rem; 
+      text-transform: uppercase; 
+      letter-spacing: 1.5px; 
+      color: #94a3b8; 
+      margin-bottom: 20px;
+    }
+
+    /* Live Search Input */
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-family: inherit;
+      background: #f1f5f9;
+      transition: 0.3s;
+    }
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    /* Filter Links */
+    .filter-link {
+      display: block;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: #64748b;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .filter-link:hover { background: #f1f5f9; color: var(--accent); }
+    
+    /* Logic to handle active state via URL */
+    .filter-link.active { background: var(--accent); color: white !important; }
+
+    /* Table with Entrance Animation ONLY on first load */
+    table { width: 100%; border-collapse: collapse; }
+    tbody tr { 
+      animation: slideIn 0.4s ease-out forwards;
+      opacity: 0;
+    }
+    th { text-align: left; font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; padding: 10px; border-bottom: 2px solid #f8fafc; }
+    td { padding: 14px 10px; border-bottom: 1px solid #f8fafc; font-size: 0.85rem; }
+
+    /* Badges */
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; }
+    .bg-ipd { background: #fee2e2; color: #ef4444; }
+    .bg-res { background: #dcfce7; color: #15803d; }
+    .bg-paid { background: #22c55e; color: white; }
+    .bg-pending { background: #f59e0b; color: white; }
+
+    .action-btn {
+      text-decoration: none;
+      padding: 6px 12px;
+      background: #f1f5f9;
+      color: var(--accent);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 1200px) { .ledger-grid { flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="ledger-grid">
+    
+    <div class="panel p-filter">
+      <div class="step-header"><h3>Controls</h3></div>
+      
+      <input type="text" id="billSearch" class="search-box" placeholder="Search patient name...">
+
+      <div class="step-header"><h3>Categories</h3></div>
+      <a href="/billingList" id="filter-all" class="filter-link">All Records</a>
+      <a href="/billingList?type=Residential" id="filter-Residential" class="filter-link">Residential</a>
+      <a href="/billingList?type=IPD" id="filter-IPD" class="filter-link">IPD</a>
+    </div>
+
+    <div class="panel p-data">
+      <div class="step-header"><h3>Ledger Records</h3></div>
+      <div style="overflow-x: auto;">
+        <table id="billingTable">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bills.forEach((bill, index) => { %>
+              <tr style="animation-delay: <%= index * 0.05 %>s">
+                <td class="patient-name" style="font-weight: 700;"><%= bill.patient ? bill.patient.name : 'N/A' %></td>
+                <td>
+                  <span class="badge <%= bill.type === 'IPD' ? 'bg-ipd' : 'bg-res' %>"><%= bill.type %></span>
+                </td>
+                <td style="font-weight: 800;">₹<%= bill.finalAmount %></td>
+                <td>
+                  <span class="badge <%= bill.paymentStatus === 'Paid' ? 'bg-paid' : 'bg-pending' %>"><%= bill.paymentStatus %></span>
+                </td>
+                <td>
+                  <a class="action-btn" href="/invoice/<%= bill._id %>" target="_blank">View</a>
+                  <% if (bill.paymentStatus === 'Pending') { %>
+                    <form action="/markPaid/<%= bill._id %>" method="POST" style="display:inline;">
+                      <button class="action-btn" style="background: #22c55e; color: white;">Mark Paid</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel p-stats">
+      <div class="step-header"><h3>Overview</h3></div>
+      <div style="background: #f1f5f9; padding: 20px; border-radius: 16px; text-align: center;">
+        <p style="font-size: 0.65rem; color: #64748b; font-weight: 700; margin-bottom: 5px;">TOTAL BILLS</p>
+        <p style="font-size: 1.5rem; font-weight: 800; color: var(--accent);"><%= bills.length %></p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. LIVE SEARCH LOGIC
+    document.getElementById('billSearch').addEventListener('keyup', function() {
+      let filter = this.value.toLowerCase();
+      let rows = document.querySelectorAll('#billingTable tbody tr');
+
+      rows.forEach(row => {
+        let name = row.querySelector('.patient-name').textContent.toLowerCase();
+        if (name.includes(filter)) {
+          row.style.display = "";
+          row.style.animation = "none"; // Stop animation during live search
+          row.style.opacity = "1";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+
+    // 2. DYNAMIC ACTIVE STATE LOGIC
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type');
+    
+    if (!type) {
+      document.getElementById('filter-all').classList.add('active');
+    } else {
+      const activeEl = document.getElementById('filter-' + type);
+      if (activeEl) activeEl.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>

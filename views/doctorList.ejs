@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Directory | Horizontal Way</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --accent: #2563eb;
+      --panel-bg: #ffffff;
+      --border-light: #e2e8f0;
+      --text-main: #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f0f7ff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .horizontal-grid {
+      display: flex;
+      width: 98%;
+      max-width: 1600px;
+      margin: auto;
+      gap: 20px;
+      padding: 20px;
+      perspective: 2000px;
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--panel-bg);
+      border-radius: 24px;
+      padding: 30px;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Column Widths */
+    .p-controls { flex: 0.7; border-top: 5px solid #60a5fa; }
+    .p-display { flex: 2.5; border-top: 5px solid #2563eb; background: transparent; border: none; box-shadow: none; padding: 0; }
+    .p-stats { flex: 0.6; border-top: 5px solid #1e40af; }
+
+    .section-header h3 { 
+      font-size: 0.7rem; 
+      text-transform: uppercase; 
+      letter-spacing: 1.5px; 
+      color: #94a3b8; 
+      margin-bottom: 20px;
+    }
+
+    /* Live Search & Add Button */
+    .search-input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      margin-bottom: 15px;
+      font-family: inherit;
+      background: #f8fafc;
+      transition: 0.3s;
+    }
+    .search-input:focus { outline: none; border-color: var(--accent); background: white; }
+
+    .add-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: 0.3s;
+    }
+    .add-btn:hover { background: #1e40af; transform: translateY(-2px); }
+
+    /* Doctor Card Grid (Inside Center Panel) */
+    .doctor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .doctor-card {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      border: 1px solid var(--border-light);
+      text-align: center;
+      opacity: 0;
+      animation: horizontalFlip 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .doctor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.2);
+      border-color: var(--accent);
+    }
+
+    .doc-avatar {
+      width: 60px;
+      height: 60px;
+      background: #eff6ff;
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 1.5rem;
+    }
+
+    .doctor-card h3 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 5px; }
+    .doctor-card p { font-size: 0.8rem; color: #64748b; margin-bottom: 15px; }
+
+    .specialist-tag {
+      background: #ebf2ff;
+      color: #2563eb;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .update-link {
+      display: block;
+      margin-top: 20px;
+      padding: 10px;
+      background: #f1f5f9;
+      color: #475569;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+    .update-link:hover { background: #e2e8f0; color: var(--text-main); }
+
+    /* Keyframes */
+    @keyframes horizontalFlip {
+      0% { opacity: 0; transform: rotateY(-20deg) scale(0.9); }
+      100% { opacity: 1; transform: rotateY(0deg) scale(1); }
+    }
+
+    @media (max-width: 1200px) { .horizontal-grid { flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="horizontal-grid">
+    
+    <div class="panel p-controls">
+      <div class="section-header"><h3>Management</h3></div>
+      <a href="/addDoctor" class="add-btn">＋ Register New Doctor</a>
+      
+      <div class="section-header" style="margin-top: 30px;"><h3>Quick Search</h3></div>
+      <input type="text" id="docSearch" class="search-input" placeholder="Search by name or field...">
+      <p style="font-size: 0.75rem; color: #94a3b8; line-height: 1.4;">
+        Live-filtering the medical staff directory.
+      </p>
+    </div>
+
+    <div class="panel p-display">
+      <div class="doctor-grid" id="doctorContainer">
+        <% doctors.forEach((doctor, index) => { %>
+          <div class="doctor-card" style="animation-delay: <%= index * 0.08 %>s">
+            <div class="doc-avatar">👨‍⚕️</div>
+            <h3 class="doc-name">Dr. <%= doctor.name %></h3>
+            <span class="specialist-tag"><%= doctor.field %></span>
+            <div style="margin-top: 15px; font-size: 0.8rem; color: #64748b;">
+                <p>📞 <%= doctor.contact %></p>
+                <p>⚧ <%= doctor.gender %></p>
+            </div>
+            <a href="/update/doctor/<%= doctor._id %>" class="update-link">✏️ Edit Profile</a>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="panel p-stats">
+      <div class="section-header"><h3>Staff Tally</h3></div>
+      <div style="text-align: center; background: #f8fafc; padding: 20px; border-radius: 16px;">
+        <p style="font-size: 0.65rem; font-weight: 800; color: #64748b; margin-bottom: 5px;">ACTIVE DOCTORS</p>
+        <p style="font-size: 2rem; font-weight: 800; color: var(--accent);"><%= doctors.length %></p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // LIVE SEARCH LOGIC
+    document.getElementById('docSearch').addEventListener('keyup', function() {
+      const filter = this.value.toLowerCase();
+      const cards = document.querySelectorAll('.doctor-card');
+
+      cards.forEach(card => {
+        const name = card.querySelector('.doc-name').textContent.toLowerCase();
+        const field = card.querySelector('.specialist-tag').textContent.toLowerCase();
+        
+        if (name.includes(filter) || field.includes(filter)) {
+          card.style.display = "block";
+          card.style.animation = "none";
+          card.style.opacity = "1";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

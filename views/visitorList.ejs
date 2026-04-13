@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMS | Visitors Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #6366f1;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Layout Wrapper */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 24px;
+      padding: 30px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* Column 1: Sidebar & Actions */
+    .col-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .btn-add {
+      background: var(--text);
+      color: white;
+      text-decoration: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-weight: 700;
+      text-align: center;
+      transition: 0.3s;
+      box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.2);
+    }
+
+    .btn-add:hover {
+      background: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .stat-box {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .stat-box h2 { font-size: 32px; font-weight: 800; color: var(--primary); }
+    .stat-box p { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Column 2: Main Visitor Log */
+    .col-main h1 {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+
+    .visitor-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .visitor-item {
+      background: var(--card);
+      padding: 20px 24px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.2s ease-in-out;
+    }
+
+    .visitor-item:hover {
+      border-color: var(--primary);
+      transform: translateX(8px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    }
+
+    .v-info h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .v-info p { font-size: 14px; color: var(--text-muted); }
+    .v-info strong { color: var(--primary); font-weight: 600; }
+
+    .btn-edit {
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      background: #f1f5f9;
+      padding: 10px 18px;
+      border-radius: 12px;
+      transition: 0.2s;
+    }
+
+    .btn-edit:hover {
+      background: var(--text);
+      color: white;
+    }
+
+    /* Column 3: Protocols & Alerts */
+    .col-info {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .protocol-card {
+      background: #1e293b;
+      color: #f1f5f9;
+      padding: 24px;
+      border-radius: 20px;
+    }
+
+    .protocol-card h4 { font-size: 13px; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+    .protocol-card ul { list-style: none; }
+    .protocol-card li { font-size: 13px; margin-bottom: 10px; display: flex; gap: 10px; }
+
+    /* Status Badge */
+    .status-badge {
+      font-size: 10px;
+      background: #ecfdf5;
+      color: #059669;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-weight: 800;
+      margin-left: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .dashboard-grid { grid-template-columns: 1fr 1fr; }
+      .col-info { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid { grid-template-columns: 1fr; padding: 20px; }
+      .col-actions { order: 2; }
+      .col-main { order: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('./navbar') %>
+
+  <div class="dashboard-grid">
+    
+    <aside class="col-actions">
+      <a href="/addVisitor" class="btn-add">Check-in New Visitor</a>
+      
+      <div class="stat-box">
+        <h2><%= visitors.length %></h2>
+        <p>Current Guests</p>
+      </div>
+
+      <div class="stat-box">
+        <h2><%= new Set(visitors.map(v => v.patientName._id)).size %></h2>
+        <p>Active Patients</p>
+      </div>
+    </aside>
+
+    <main class="col-main">
+      <h1>Visitor Registry <span class="status-badge">LIVE UPDATES</span></h1>
+      
+      <div class="visitor-feed">
+        <% visitors.forEach(visitor => { %>
+          <div class="visitor-item">
+            <div class="v-info">
+              <h3>👤 <%= visitor.name %></h3>
+              <p>Visiting: <strong><%= visitor.patientName.name %></strong></p>
+              <p>Contact: <%= visitor.contact %></p>
+            </div>
+            <a href="/update/visitors/<%= visitor._id %>" class="btn-edit">Edit Log</a>
+          </div>
+        <% }) %>
+      </div>
+    </main>
+
+    <aside class="col-info">
+      <div class="protocol-card">
+        <h4>Safety Protocols</h4>
+        <ul>
+          <li>✅ One visitor per bedside</li>
+          <li>✅ Visiting hours: 4PM - 7PM</li>
+          <li>✅ Mask mandatory in Wards</li>
+          <li>✅ Sanitize hands at entry</li>
+        </ul>
+      </div>
+
+      <div class="stat-box" style="border-style: dashed; background: transparent;">
+        <p style="text-align: center; color: var(--text-muted);">
+          System syncing with <br> <strong>Main Gate Security</strong>
+        </p>
+      </div>
+    </aside>
+
+  </div>
+
+</body>
+</html>
