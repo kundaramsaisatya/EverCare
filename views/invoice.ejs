@@ -164,6 +164,24 @@
         <tr><td>2</td><td>Nutritional Food Charges</td><td class="right">₹<%= bill.residentialDetails.foodCharge %></td></tr>
         <tr><td>3</td><td>Personal Care & Nursing</td><td class="right">₹<%= bill.residentialDetails.careCharge %></td></tr>
         <tr><td>4</td><td>Miscellaneous Charges</td><td class="right">₹<%= bill.residentialDetails.extraCharge %></td></tr>
+        <% if (bill.doctorDetails && bill.doctorDetails.length > 0) { %>
+        <% bill.doctorDetails.forEach((doc, i) => { %>
+          <tr>
+            <td><%= 5 + i %></td>
+            <td>Doctor Consultation: <%= doc.name %></td>
+            <td class="right">₹<%= doc.fee %></td>
+          </tr>
+        <% }) %>
+      <% } %>
+      <% if (bill.medicineDetails && bill.medicineDetails.length > 0) { %>
+        <% bill.medicineDetails.forEach((item, i) => { %>
+          <tr>
+            <td><%= 5 + (bill.doctorDetails ? bill.doctorDetails.length : 0) + i %></td>
+            <td>Medicine: <%= item.name %> (Qty: <%= item.quantity %>)</td>
+            <td class="right">₹<%= item.subtotal %></td>
+          </tr>
+        <% }) %>
+      <% } %>
       <% } else { %>
         <tr><td>1</td><td>Ward Charges (<%= bill.wardDetails.wardCategory %>)</td><td class="right">₹<%= bill.wardDetails.roomCharge %></td></tr>
         <% if (bill.doctorDetails) { bill.doctorDetails.forEach((doc, i) => { %>

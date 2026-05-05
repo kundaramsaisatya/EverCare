@@ -1,0 +1,5 @@
+# dependencies
+node_modules/
+.env
+# optional (keep if you want clean repo)
+package-lock.json

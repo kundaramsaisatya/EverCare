@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -8,7 +9,6 @@ const passport = require('passport');7
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const puppeteer = require('puppeteer-core');
-require('dotenv').config();
 
 const app = express();
 
@@ -32,6 +32,7 @@ const mongoStore = MongoStore.create({
   collectionName: 'sessions'
 });
 
+
 // Session Config
 app.use(session({
   genid: (req) => {
@@ -44,11 +45,28 @@ app.use(session({
   cookie: { maxAge: 1000 * 60 * 60 } // 1 hour
 }));
 
+
+
+//user schema
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    password: String,
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
+    }
+});
+
+const User = mongoose.model("User", userSchema);
+
 // Passport config
-// const passportInit = require('./app/config/passport');
-// passportInit(passport);
-// app.use(passport.initialize());
-// app.use(passport.session());
+const passportInit = require('./app/config/passport');
+passportInit(passport);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Global Middleware
 app.use((req, res, next) => {
@@ -64,7 +82,11 @@ app.use(cors());
 
 require('./routes/web')(app);
 
+app.use("/", require("./routes/auth"));
 
+
+
+//patient scheme
 const patientSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -84,7 +106,6 @@ const patientSchema = new mongoose.Schema({
   contact: {
     type: String,
     required: true,
-    unique: true,   // important
     validate: {
       validator: function (v) {
         return /^[0-9]{10}$/.test(v);
@@ -454,8 +475,9 @@ const Ward = mongoose.model('Ward', wardSchema);
 
 
 // Routes
+const { isAuth, isAdmin } = require("./middleware/auth");
 // Home Page - List Patients
-app.get('/', async (req, res) => {
+app.get('/', isAuth, async (req, res) => {
   try {
     res.render('home');
   } catch (err) {
@@ -463,7 +485,7 @@ app.get('/', async (req, res) => {
   }
 });
 
-app.get('/patient', async (req, res) => {
+app.get('/patient', isAuth, isAdmin, async (req, res) => {
 
   const patients = await Patient.find().populate('consultations.doctor').populate('medicines.medicine').populate('schemeId');
 
@@ -492,7 +514,7 @@ app.get('/patient', async (req, res) => {
 
 
 
-app.get('/viewReport/:id', async (req, res) => {
+app.get('/viewReport/:id', isAuth, isAdmin, async (req, res) => {
   try {
     const patient = await Patient.findById(req.params.id)
       .populate('consultations.doctor')
@@ -508,7 +530,7 @@ app.get('/viewReport/:id', async (req, res) => {
 });
 
 
-app.get('/viewReport', async (req, res) => {
+app.get('/viewReport', isAuth, isAdmin, async (req, res) => {
   const patients = await Patient.find()
     .populate('consultations.doctor')
 
@@ -529,7 +551,7 @@ app.get('/viewReport', async (req, res) => {
 //   }
 // });
 
-app.get('/visitor', async (req, res) => {
+app.get('/visitor',isAuth, isAdmin, async (req, res) => {
   try {
     const visitors = await Visitor.find().populate('patientName', 'name');
     const patients = await Patient.find();
@@ -540,7 +562,7 @@ app.get('/visitor', async (req, res) => {
 });
 
 
-app.get('/doctor', async (req, res) => {
+app.get('/doctor', isAuth, isAdmin,async (req, res) => {
   try {
       const patients = await Patient.find();
       const doctors = await Doctor.find();
@@ -550,7 +572,7 @@ app.get('/doctor', async (req, res) => {
   }
 });
 
-app.get('/medicine', async (req, res) => {
+app.get('/medicine', isAuth, isAdmin, async (req, res) => {
   try {
       const patients = await Patient.find();
       const doctors = await Doctor.find();
@@ -563,7 +585,7 @@ app.get('/medicine', async (req, res) => {
 
 
 // Add Patient Page
-app.get('/addPatient', async (req, res) => {
+app.get('/addPatient', isAuth, isAdmin,async (req, res) => {
   try {
     const doctors = await Doctor.find({}, 'name field');
     const medicines = await Medicine.find({}, 'name');
@@ -589,7 +611,7 @@ app.post('/addPatient', async (req, res) => {
     schemeVerified,
     residentialCategory
   } = req.body;
-
+  
   let { doctorIds, consultationDates } = req.body;
 
   if (!Array.isArray(doctorIds)) {
@@ -636,7 +658,7 @@ app.post('/addPatient', async (req, res) => {
 
 
 // Add Visitor  Page
-app.get('/addVisitor', async (req, res) => {
+app.get('/addVisitor',isAuth, isAdmin, async (req, res) => {
   try {
     const patients = await Patient.find({}, 'name'); // Fetch patient names
     res.render('addVisitor', { patients}); // Pass patients to the view
@@ -659,7 +681,7 @@ app.post('/addVisitor', async (req, res) => {
 
 
 //Doctor
-app.get('/addDoctor', (req, res) => {
+app.get('/addDoctor',isAuth, isAdmin, (req, res) => {
   res.render('addDoctor');
 });
 app.post('/addDoctor', async (req, res) => {
@@ -679,7 +701,7 @@ app.post('/addDoctor', async (req, res) => {
 
 
 //Medicine
-app.get('/addMedicine', (req, res) => {
+app.get('/addMedicine',isAuth, isAdmin, (req, res) => {
   res.render('addMedicine');
 });
 app.post('/addMedicine', async (req, res) => {
@@ -699,7 +721,7 @@ app.post('/addMedicine', async (req, res) => {
 
 
 // Update Patient Page
-app.get('/update/:id', async (req, res) => {
+app.get('/update/:id',isAuth, isAdmin, async (req, res) => {
   const patient = await Patient.findById(req.params.id)
     .populate('consultations.doctor')
 
@@ -728,6 +750,7 @@ app.post('/update/:id', async (req, res) => {
     age,
     gender,
     contact,
+    guardianEmail,
     description,
     schemeId,
     schemeNumber,
@@ -744,7 +767,7 @@ app.post('/update/:id', async (req, res) => {
     }
 
     // -------------------------
-    // UPDATE PROFILE ONLY
+    // UPDATE PROFILE
     // -------------------------
 
     patient.name = name;
@@ -752,16 +775,70 @@ app.post('/update/:id', async (req, res) => {
     patient.gender = gender;
     patient.contact = contact;
     patient.description = description;
-
+    patient.guardianEmail = guardianEmail; // ✔ correct here
     patient.schemeId = schemeId || null;
     patient.schemeNumber = schemeNumber || null;
     patient.schemeVerified = schemeVerified === 'on';
     patient.residentialCategory = residentialCategory;
 
-    // IMPORTANT:
-    // DO NOT TOUCH:
-    // patient.consultations
-    // patient.medicines
+
+    // -------------------------
+    // UPDATE CONSULTATIONS
+    // -------------------------
+
+    let doctorIds = req.body.doctorIds || [];
+    let dates = req.body.consultationDates || [];
+
+    if (!Array.isArray(doctorIds)) doctorIds = [doctorIds];
+    if (!Array.isArray(dates)) dates = [dates];
+
+    patient.consultations = [];
+
+    for (let i = 0; i < doctorIds.length; i++) {
+
+      if (!doctorIds[i]) continue;
+
+      const doctor = await Doctor.findById(doctorIds[i]);
+      if (!doctor) continue;
+
+      patient.consultations.push({
+        doctor: doctor._id,
+        fee: doctor.consultationFee,
+        date: dates[i] ? new Date(dates[i]) : new Date(),
+        billed: false
+      });
+    }
+
+
+    // -------------------------
+    // UPDATE MEDICINES
+    // -------------------------
+
+    let medicineIds = req.body.medicineIds || [];
+    let quantities = req.body.quantities || [];
+
+    if (!Array.isArray(medicineIds)) medicineIds = [medicineIds];
+    if (!Array.isArray(quantities)) quantities = [quantities];
+
+    patient.medicines = [];
+
+    for (let i = 0; i < medicineIds.length; i++) {
+
+      if (!medicineIds[i]) continue;
+
+      const medicine = await Medicine.findById(medicineIds[i]);
+      if (!medicine) continue;
+
+      patient.medicines.push({
+        medicine: medicine._id,
+        quantity: quantities[i] || 1,
+        billed: false
+      });
+    }
+
+    // -------------------------
+    // SAVE
+    // -------------------------
 
     await patient.save();
 
@@ -778,7 +855,7 @@ app.post('/update/:id', async (req, res) => {
 
 
 // Update Visitor Page
-app.get('/update/visitors/:id', async (req, res) => {
+app.get('/update/visitors/:id',isAuth, isAdmin, async (req, res) => {
   const { id } = req.params;
   try {
     const visitors = await Visitor.findById(id).populate('patientName', 'name');
@@ -804,7 +881,7 @@ app.post('/update/visitors/:id', async (req, res) => {
 
 
 // Update Doctor Page
-app.get('/update/doctor/:id', async (req, res) => {
+app.get('/update/doctor/:id',isAuth, isAdmin, async (req, res) => {
   const { id } = req.params;
   
   try {
@@ -832,7 +909,7 @@ app.post('/update/doctor/:id', async (req, res) => {
 
 
 // Update Medicine Page
-app.get('/update/medicine/:id', async (req, res) => {
+app.get('/update/medicine/:id',isAuth, isAdmin, async (req, res) => {
   const { id } = req.params;
   
   try {
@@ -860,7 +937,7 @@ app.post('/update/medicine/:id', async (req, res) => {
 
 
 //room
-app.get('/addRoom', (req, res) => {
+app.get('/addRoom', isAuth, isAdmin,(req, res) => {
   res.render('addRoom');
 });
 
@@ -878,7 +955,7 @@ app.post('/addRoom', async (req, res) => {
 });
 
 
-app.get('/rooms', async (req, res) => {
+app.get('/rooms',isAuth, isAdmin, async (req, res) => {
   const rooms = await Room.find().populate('patient', 'name');
   const patients = await Patient.find();
   res.render('roomList', { rooms, patients });
@@ -901,7 +978,7 @@ app.post('/allocateRoom/:id', async (req, res) => {
 
 
 //update room status to available
-app.get('/updateRoom/:id', async (req, res) => {
+app.get('/updateRoom/:id',isAuth, isAdmin, async (req, res) => {
   const room = await Room.findById(req.params.id);
   res.render('updateRoom', { room });
 });
@@ -963,7 +1040,7 @@ app.post('/discharge/:roomId', async (req, res) => {
 
 
 //schemes:
-app.get('/schemes', async (req, res) => {
+app.get('/schemes', isAuth, isAdmin,async (req, res) => {
   try {
     const schemes = await Scheme.find();
     res.render('schemeList', { schemes });
@@ -973,7 +1050,7 @@ app.get('/schemes', async (req, res) => {
 });
 
 // Add Scheme Page
-app.get('/addScheme', (req, res) => {
+app.get('/addScheme', isAuth, isAdmin,(req, res) => {
   res.render('addScheme');
 });
 
@@ -997,7 +1074,7 @@ app.post('/addScheme', async (req, res) => {
 });
 
 //update scheme
-app.get('/updateScheme/:id', async (req, res) => {
+app.get('/updateScheme/:id', isAuth, isAdmin,async (req, res) => {
   const scheme = await Scheme.findById(req.params.id);
   res.render('updateScheme', { scheme });
 });
@@ -1058,7 +1135,7 @@ async function generateInvoicePDF(bill) {
 
 
 //billing
-app.get('/billing', async (req, res) => {
+app.get('/billing', isAuth, isAdmin,async (req, res) => {
   const patients = await Patient.find().populate('schemeId');
   res.render('billing', { patients });
 });
@@ -1091,34 +1168,46 @@ app.post('/billing', async (req, res) => {
     const year = currentDate.getFullYear();
     // 🔥 DELETE OLD PENDING BILL (ALLOW OVERRIDE)
 
-    const unpaidBill = await Billing.findOne({
-      patient: patient._id,
-      type: 'Residential',
-      billingMonth: month,
-      billingYear: year,
-      paymentStatus: 'Pending'
-    });
+    // const unpaidBill = await Billing.findOne({
+    //   patient: patient._id,
+    //   type: 'Residential',
+    //   billingMonth: month,
+    //   billingYear: year,
+    //   paymentStatus: 'Pending'
+    // });
 
-    if (unpaidBill) {
-      await Billing.findByIdAndDelete(unpaidBill._id);
-    }
+    // if (unpaidBill) {
+    //   await Billing.findByIdAndDelete(unpaidBill._id);
+    // }
 
-    const paidBillExists = await Billing.findOne({
-      patient: patient._id,
-      type: 'Residential',
-      billingMonth: month,
-      billingYear: year,
-      paymentStatus: 'Paid'
-    });
+    // const paidBillExists = await Billing.findOne({
+    //   patient: patient._id,
+    //   type: 'Residential',
+    //   billingMonth: month,
+    //   billingYear: year,
+    //   paymentStatus: 'Paid'
+    // });
 
     const unbilledConsultations = patient.consultations.filter(c => !c.billed);
     const unbilledMedicines = patient.medicines.filter(m => !m.billed);
 
-    if (!paidBillExists &&
-        unbilledConsultations.length === 0 &&
-        unbilledMedicines.length === 0) {
+    // if (!paidBillExists &&
+    //     unbilledConsultations.length === 0 &&
+    //     unbilledMedicines.length === 0) {
 
-      return res.send("Nothing new to bill.");
+    //   return res.send("Nothing new to bill.");
+    // }
+
+    const alreadyGenerated = await Billing.findOne({
+      patient: patient._id,
+      type: 'Residential',
+      billingMonth: month,
+      billingYear: year
+    });
+
+      if (alreadyGenerated) {
+      alreadyGenerated.isLatest = false;
+      await alreadyGenerated.save();
     }
 
     // -------------------------
@@ -1130,7 +1219,7 @@ app.post('/billing', async (req, res) => {
     let care = 0;
     let extra = 0;
 
-    if (!paidBillExists) {
+    // if (!paidBillExists) {
 
       if (patient.residentialCategory === 'General') {
         roomRent = 6000;
@@ -1143,7 +1232,7 @@ app.post('/billing', async (req, res) => {
       food = Number(foodCharge) || 4000;
       care = Number(careCharge) || 13000;
       extra = Number(extraCharge) || 2400;
-    }
+    // }
 
     // -------------------------
     // DOCTOR TOTAL (UNBILLED ONLY)
@@ -1243,13 +1332,13 @@ medicineSnapshots.forEach(m => {
       billingMonth: month,
       billingYear: year,
 
-      residentialDetails: (!paidBillExists) ? {
+      residentialDetails: {
       category: patient.residentialCategory,
       roomRent,
       foodCharge: food,
       careCharge: care,
       extraCharge: extra
-    } : undefined,
+    },
 
       doctorDetails: doctorSnapshots.map(d => ({
       name: `${d.name} (${d.visitCount} Visit${d.visitCount > 1 ? 's' : ''})`,
@@ -1277,7 +1366,7 @@ medicineSnapshots.forEach(m => {
 
 
 
-app.get('/billingList', async (req, res) => {
+app.get('/billingList',isAuth, isAdmin, async (req, res) => {
 
   const type = req.query.type;
 
@@ -1327,7 +1416,7 @@ app.post('/markPaid/:id', async (req, res) => {
 
  
 
-app.get('/invoice/:id', async (req, res) => {
+app.get('/invoice/:id', isAuth, isAdmin,async (req, res) => {
 
   try {
 
@@ -1402,7 +1491,7 @@ app.post('/ward/admit/:patientId', async (req, res) => {
 });
 
 //view active wards
-app.get('/ward/active', async (req, res) => {
+app.get('/ward/active',isAuth, isAdmin, async (req, res) => {
 
   const wards = await Ward.find({ status: 'Active' })
     .populate('patient')
@@ -1436,7 +1525,7 @@ app.post('/ward/discharge/:id', async (req, res) => {
 
 
 //admitWard
-app.get('/ward/admit/:patientId', async (req, res) => {
+app.get('/ward/admit/:patientId',isAuth, isAdmin, async (req, res) => {
 
   const patient = await Patient.findById(req.params.patientId);
 
@@ -1444,7 +1533,7 @@ app.get('/ward/admit/:patientId', async (req, res) => {
 
 });
 
-app.get('/ward/view/:id', async (req, res) => {
+app.get('/ward/view/:id',isAuth, isAdmin, async (req, res) => {
 
   const ward = await Ward.findById(req.params.id)
     .populate('patient')
@@ -1561,7 +1650,7 @@ app.post('/ward/attachScheme/:id', async (req, res) => {
 // });
 
 // IPD Billing
-app.get('/ward/generateBill/:id', async (req, res) => {
+app.get('/ward/generateBill/:id', isAuth, isAdmin,async (req, res) => {
 
   const ward = await Ward.findById(req.params.id)
     .populate('patient')
@@ -1699,7 +1788,7 @@ app.post('/ward/updateDates/:id', async (req, res) => {
 });
 
 //ipd billing
-app.get('/billing/ipd', async (req, res) => {
+app.get('/billing/ipd',isAuth, isAdmin, async (req, res) => {
   const dischargedWards = await Ward.find({ status: 'Discharged' })
     .populate({
       path: 'patient',
@@ -1762,7 +1851,7 @@ app.post('/sendBill/:id', async (req, res) => {
 });
 
 //add consultation to ward
-app.get('/patient/:id/addConsultation', async (req, res) => {
+app.get('/patient/:id/addConsultation',isAuth, isAdmin, async (req, res) => {
   const patient = await Patient.findById(req.params.id);
   const doctors = await Doctor.find();
   res.render('addConsultation', { patient, doctors });
@@ -1788,7 +1877,7 @@ app.post('/patient/:id/addConsultation', async (req, res) => {
 //add medicine to patient
 
 
-app.get('/patient/:id/addMedicine', async (req, res) => {
+app.get('/patient/:id/addMedicine',isAuth, isAdmin, async (req, res) => {
   const patient = await Patient.findById(req.params.id);
   const medicines = await Medicine.find();
   res.render('addMedicineToPatient', { patient, medicines });

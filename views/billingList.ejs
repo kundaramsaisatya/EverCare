@@ -168,14 +168,23 @@
                 <td>
                   <span class="badge <%= bill.paymentStatus === 'Paid' ? 'bg-paid' : 'bg-pending' %>"><%= bill.paymentStatus %></span>
                 </td>
-                <td>
-                  <a class="action-btn" href="/invoice/<%= bill._id %>" target="_blank">View</a>
-                  <% if (bill.paymentStatus === 'Pending') { %>
-                    <form action="/markPaid/<%= bill._id %>" method="POST" style="display:inline;">
-                      <button class="action-btn" style="background: #22c55e; color: white;">Mark Paid</button>
-                    </form>
-                  <% } %>
-                </td>
+               <td>
+                <a class="action-btn" href="/invoice/<%= bill._id %>" target="_blank">View</a>
+
+                <% if (bill.paymentStatus === 'Pending') { %>
+                  <form action="/markPaid/<%= bill._id %>" method="POST" style="display:inline;">
+                    <button class="action-btn" style="background: #22c55e; color: white;">Mark Paid</button>
+                  </form>
+                <% } %>
+
+                <!-- ✅ SEND EMAIL BUTTON -->
+                <form action="/sendBill/<%= bill._id %>" method="POST" style="display:inline;">
+                  <button class="action-btn" style="background: #6366f1; color: white;">
+                    Send Email
+                  </button>
+                </form>
+
+              </td>
               </tr>
             <% }) %>
           </tbody>

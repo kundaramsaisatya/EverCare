@@ -1,5 +1,6 @@
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/user');
+const mongoose = require("mongoose");
+const User = mongoose.model("User");
 const bcrypt = require('bcrypt');
 
 function init(passport) {

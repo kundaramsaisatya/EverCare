@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EverCare | Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --bg-light: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            overflow: hidden; /* Prevents scroll on the main container */
+        }
+
+        .split-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* LEFT SIDE: BRANDING/HERO */
+        .brand-side {
+            flex: 1.2;
+            background: linear-gradient(135deg, #0d9488 0%, #134e4a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            color: white;
+            position: relative;
+        }
+
+        .brand-side::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/cubes.png');
+            opacity: 0.1;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .brand-side h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .brand-side p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        /* RIGHT SIDE: FORMS */
+        .form-side {
+            flex: 1;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 400px;
+            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .header p {
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Form Styling */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-action:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.2);
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .toggle-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .brand-side { display: none; }
+            .form-side { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="split-container">
+    
+    <!-- Left Page: Branding -->
+    <section class="brand-side">
+        <div class="brand-content">
+            <h1>Compassionate Care, <br> Simplified.</h1>
+            <p>EverCare connects NGOs, healthcare providers, and families to ensure no resident is left behind. Management made human.</p>
+        </div>
+    </section>
+
+    <!-- Right Page: Action -->
+    <section class="form-side">
+        <div class="form-wrapper">
+            
+            <div class="header">
+                <h2>Welcome</h2>
+                <p>Please enter your details to continue.</p>
+            </div>
+
+            <form action="/login" method="POST">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="name@organization.org" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-action">Sign In</button>
+            </form>
+
+            <div class="toggle-link">
+                New to the platform? <a href="/signup">Create an NGO Account</a>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

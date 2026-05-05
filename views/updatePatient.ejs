@@ -214,6 +214,17 @@
 
       <label for="contact">Contact Number</label>
       <input type="text" id="contact" name="contact" value="<%= patient.contact %>" pattern="[0-9]{10}" required>
+      <label for="guardianEmail">Guardian Email</label>
+      <input 
+        type="email" 
+        id="guardianEmail" 
+        name="guardianEmail" 
+        value="<%= patient.guardianEmail || '' %>" 
+        placeholder="guardian@example.com"
+        required
+      >
+
+      
 
       <h3>Doctor Consultations</h3>
       <% doctors.forEach(doc => { 
@@ -222,9 +233,9 @@
          );
       %>
         <div class="selection-row">
-          <input type="checkbox" name="doctorIds" value="<%= doc._id %>" <%= existingConsult ? 'checked' : '' %>>
+          <input type="checkbox" name="doctorIds[]" value="<%= doc._id %>" <%= existingConsult ? 'checked' : '' %>>
           <span class="name-label">Dr. <%= doc.name %></span>
-          <input type="date" name="consultationDates" class="inline-input"
+          <input type="date" name="consultationDates[]" class="inline-input"
                  value="<%= existingConsult && existingConsult.date ? new Date(existingConsult.date).toISOString().split('T')[0] : '' %>"
                  style="width:150px;">
         </div>
@@ -237,11 +248,11 @@
           );
       %>
         <div class="selection-row">
-          <input type="checkbox" name="medicineIds" value="<%= med._id %>" <%= existing ? 'checked' : '' %>>
+          <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" <%= existing ? 'checked' : '' %>>
           <span class="name-label"><%= med.name %></span>
           <div style="display:flex; align-items:center; gap:8px;">
             <label style="margin-bottom:0; font-size: 0.75rem;">Qty:</label>
-            <input type="number" name="quantities" min="1" class="inline-input"
+            <input type="number" name="quantities[]" min="1" class="inline-input"
                    value="<%= existing ? existing.quantity : 1 %>" style="width:70px;">
           </div>
         </div>
